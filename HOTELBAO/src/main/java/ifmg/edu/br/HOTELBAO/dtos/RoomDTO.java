@@ -1,27 +1,40 @@
-package ifmg.edu.br.HOTELBAO.entities;
+package ifmg.edu.br.HOTELBAO.dtos;
 
+import ifmg.edu.br.HOTELBAO.entities.Room;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 
 import java.util.Objects;
 
-@Entity
-@Table(name = "room")
-public class Room {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class RoomDTO {
+    @Schema(description = "Database generated ID Room")
     private long id;
-    @Column(columnDefinition = "TEXT")
+
+    @Schema(description = "Room description")
     private String description;
+
+    @Schema(description = "Room price per stay")
+    @Positive(message = "Preço deve ter valor positivo")
     private float price;
+
+    @Schema(description = "Room image URL")
     private String imageUrl;
 
-    public Room() {}
+    public RoomDTO() {}
 
-    public Room(long id, String description, float price, String imageUrl) {
+    public RoomDTO(long id, String description, float price, String imageUrl) {
         this.id = id;
         this.description = description;
         this.price = price;
         this.imageUrl = imageUrl;
+    }
+
+    public RoomDTO(Room entity) {
+        this.id = entity.getId();
+        this.description = entity.getDescription();
+        this.price = entity.getValue();
+        this.imageUrl = entity.getImageUrl();
     }
 
     //get and set
@@ -61,7 +74,7 @@ public class Room {
     //equals and hashcode
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Room room)) return false;
+        if (!(o instanceof RoomDTO room)) return false;
         return id == room.id;
     }
 

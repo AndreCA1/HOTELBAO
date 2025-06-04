@@ -2,7 +2,9 @@ package ifmg.edu.br.HOTELBAO.entities;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "client")
@@ -11,10 +13,11 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String name;
+    @Column(unique = true)
     private String email;
     private String password;
-    // #TODO LOGIN??
     private String phone;
+
 
     public Client() {}
 
