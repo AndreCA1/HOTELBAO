@@ -1,8 +1,8 @@
 package ifmg.edu.br.HOTELBAO.resources;
 
-import ifmg.edu.br.HOTELBAO.dtos.ClientDTO;
-import ifmg.edu.br.HOTELBAO.dtos.RoomDTO;
-import ifmg.edu.br.HOTELBAO.services.RoomService;
+import ifmg.edu.br.HOTELBAO.dtos.DailyDTO;
+import ifmg.edu.br.HOTELBAO.dtos.DailyInsertDTO;
+import ifmg.edu.br.HOTELBAO.services.DailyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,38 +11,38 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
 @RestController
-@RequestMapping("/room")
-@Tag(name = "Room", description = "Controller/Resource for Rooms")
-public class RoomResource {
+@RequestMapping("/daily")
+@Tag(name = "Daily", description = "Controller/Resource for Daily")
+public class DailyResource {
+
     @Autowired
-    private RoomService roomService;
+    DailyService dailyService;
 
     @GetMapping(produces = "application/json")
     @Operation(
-            description = "Find all Rooms",
-            summary = "Find all Rooms",
+            description = "Find all Daily",
+            summary = "Find all Daily",
             responses = {
                     @ApiResponse(description = "Ok", responseCode = "200"),
                     @ApiResponse(description = "Bad request", responseCode = "400"),
                     @ApiResponse(description = "UnAuthorized", responseCode = "401"),
                     @ApiResponse(description = "Forbidden", responseCode = "403")
             })
-    public ResponseEntity<Page<RoomDTO>> findAll(Pageable pageable) {
-        Page<RoomDTO> entitys = roomService.findAll(pageable);
+    public ResponseEntity<Page<DailyDTO>> findAll(Pageable pageable) {
+        Page<DailyDTO> entitys = dailyService.findAll(pageable);
         return ResponseEntity.ok(entitys);
     }
 
     @GetMapping(value = "/{id}", produces = "application/json")
     @Operation(
-            description = "Find room by ID",
-            summary = "Find room by ID",
+            description = "Find daily by ID",
+            summary = "Find daily by ID",
             responses = {
                     @ApiResponse(description = "Ok", responseCode = "200"),
                     @ApiResponse(description = "Bad request", responseCode = "400"),
@@ -50,23 +50,23 @@ public class RoomResource {
                     @ApiResponse(description = "Forbidden", responseCode = "403"),
                     @ApiResponse(description = "NotFound", responseCode = "404")
             })
-    public ResponseEntity<RoomDTO> findById(@PathVariable Long id) {
-        RoomDTO entity = roomService.findById(id);
+    public ResponseEntity<DailyDTO> findById(@PathVariable Long id) {
+        DailyDTO entity = dailyService.findById(id);
         return ResponseEntity.ok(entity);
     }
 
     @PostMapping(produces = "application/json")
     @Operation(
-            description = "Create a new room",
-            summary = "Create a new room",
+            description = "Create a new daily",
+            summary = "Create a new daily",
             responses = {
                     @ApiResponse(description = "Created", responseCode = "201"),
                     @ApiResponse(description = "Bad request", responseCode = "400"),
                     @ApiResponse(description = "UnAuthorized", responseCode = "401"),
                     @ApiResponse(description = "Forbidden", responseCode = "403")
             })
-    public ResponseEntity<RoomDTO> insert(@Valid @RequestBody RoomDTO dto) {
-        RoomDTO entity = roomService.insert(dto);
+    public ResponseEntity<DailyDTO> insert(@Valid @RequestBody DailyInsertDTO dto) {
+        DailyDTO entity = dailyService.insert(dto);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -78,8 +78,8 @@ public class RoomResource {
 
     @PutMapping(value = "/{id}", produces = "application/json")
     @Operation(
-            description = "Update room",
-            summary = "Update room",
+            description = "Update daily",
+            summary = "Update daily",
             responses = {
                     @ApiResponse(description = "Ok", responseCode = "200"),
                     @ApiResponse(description = "Bad request", responseCode = "400"),
@@ -87,15 +87,15 @@ public class RoomResource {
                     @ApiResponse(description = "Forbidden", responseCode = "403"),
                     @ApiResponse(description = "NotFound", responseCode = "404")
             })
-    public ResponseEntity<RoomDTO> update(@Valid @PathVariable Long id, @RequestBody RoomDTO dto) {
-        dto = roomService.update(id, dto);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<DailyDTO> update(@Valid @PathVariable Long id, @RequestBody DailyInsertDTO dto) {
+        DailyDTO responseDTO = dailyService.update(id, dto);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @DeleteMapping(value = "/{id}")
     @Operation(
-            description = "Delete room",
-            summary = "Delete room",
+            description = "Delete daily",
+            summary = "Delete daily",
             responses = {
                     @ApiResponse(description = "Ok", responseCode = "200"),
                     @ApiResponse(description = "Bad request", responseCode = "400"),
@@ -104,7 +104,7 @@ public class RoomResource {
                     @ApiResponse(description = "NotFound", responseCode = "404")
             })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        roomService.delete(id);
+        dailyService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

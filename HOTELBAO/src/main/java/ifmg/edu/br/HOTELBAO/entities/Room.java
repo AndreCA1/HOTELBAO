@@ -1,6 +1,7 @@
 package ifmg.edu.br.HOTELBAO.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 
 import java.util.Objects;
 
@@ -10,15 +11,19 @@ public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    private boolean active;
     @Column(columnDefinition = "TEXT")
     private String description;
     private float price;
     private String imageUrl;
 
-    public Room() {}
+    public Room() {
+        this.active = true;
+    }
 
     public Room(long id, String description, float price, String imageUrl) {
         this.id = id;
+        this.active = true;
         this.description = description;
         this.price = price;
         this.imageUrl = imageUrl;
@@ -33,6 +38,10 @@ public class Room {
         this.id = id;
     }
 
+    public boolean getActive() {return active;}
+
+    public void setActive(boolean active) {this.active = active;}
+
     public String getDescription() {
         return description;
     }
@@ -41,11 +50,11 @@ public class Room {
         this.description = description;
     }
 
-    public float getValue() {
+    public float getPrice() {
         return price;
     }
 
-    public void setValue(float price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 
@@ -75,6 +84,7 @@ public class Room {
     public String toString() {
         return "Room{" +
                 "id=" + id +
+                ", active=" + active +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", imageUrl='" + imageUrl + '\'' +

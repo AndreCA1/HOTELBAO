@@ -1,5 +1,6 @@
 package ifmg.edu.br.HOTELBAO.entities;
 
+import ifmg.edu.br.HOTELBAO.dtos.ClientDTO;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -12,6 +13,7 @@ public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    private boolean active;
     private String name;
     @Column(unique = true)
     private String email;
@@ -19,14 +21,25 @@ public class Client {
     private String phone;
 
 
-    public Client() {}
+    public Client() {
+        this.active = true;
+    }
 
     public Client(long id, String name, String email, String password, String phone) {
         this.id = id;
+        this.active = true;
         this.name = name;
         this.email = email;
         this.password = password;
         this.phone = phone;
+    }
+
+    public Client(ClientDTO dto) {
+        this.id = dto.getId();
+        this.active = true;
+        this.name = dto.getName();
+        this.email = dto.getEmail();
+        this.phone = dto.getPhone();
     }
 
     //get and set
@@ -37,6 +50,10 @@ public class Client {
     public void setId(long id) {
         this.id = id;
     }
+
+    public boolean getActive() {return active;}
+    
+    public void setActive(boolean active) {this.active = active;}
 
     public String getName() {
         return name;
@@ -82,13 +99,12 @@ public class Client {
     public int hashCode() {
         return Objects.hashCode(id);
     }
-    //end equals and hashcode
-
 
     @Override
     public String toString() {
         return "Client{" +
                 "id=" + id +
+                ", active=" + active +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +

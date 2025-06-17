@@ -3,6 +3,7 @@ package ifmg.edu.br.HOTELBAO.dtos;
 import ifmg.edu.br.HOTELBAO.entities.Room;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
 import java.util.Objects;
@@ -12,6 +13,7 @@ public class RoomDTO {
     private long id;
 
     @Schema(description = "Room description")
+    @NotBlank
     private String description;
 
     @Schema(description = "Room price per stay")
@@ -33,7 +35,7 @@ public class RoomDTO {
     public RoomDTO(Room entity) {
         this.id = entity.getId();
         this.description = entity.getDescription();
-        this.price = entity.getValue();
+        this.price = entity.getPrice();
         this.imageUrl = entity.getImageUrl();
     }
 
@@ -54,11 +56,11 @@ public class RoomDTO {
         this.description = description;
     }
 
-    public float getValue() {
+    public float getPrice() {
         return price;
     }
 
-    public void setValue(float price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 

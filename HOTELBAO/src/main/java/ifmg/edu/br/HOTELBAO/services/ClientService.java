@@ -29,16 +29,16 @@ public class ClientService implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
-    public Page<ClientDTO> findAll(Pageable page){
-        Page<Client> list = clientRepository.findAll(page);
+    public Page<ClientDTO> findAll(Pageable pageable){
+        Page<Client> page = clientRepository.findAll(pageable);
 
-        return list.map(ClientDTO::new);
+        return page.map(ClientDTO::new);
     }
 
     @Transactional(readOnly = true)
     public ClientDTO findById(Long id){
         Optional<Client> opt = clientRepository.findById(id);
-        Client entity = opt.orElseThrow(() -> new ResourceNotFound("Client not found"));
+        Client entity = opt.orElseThrow(() -> new ResourceNotFound("Client " + id + " not found"));
         return new ClientDTO(entity);
     }
 

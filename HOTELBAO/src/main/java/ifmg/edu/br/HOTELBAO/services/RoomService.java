@@ -25,16 +25,16 @@ public class RoomService {
     private PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
-    public Page<RoomDTO> findAll(Pageable page){
-        Page<Room> list = roomRepository.findAll(page);
+    public Page<RoomDTO> findAll(Pageable pageable){
+        Page<Room> page = roomRepository.findAll(pageable);
 
-        return list.map(RoomDTO::new);
+        return page.map(RoomDTO::new);
     }
 
     @Transactional(readOnly = true)
     public RoomDTO findById(Long id){
         Optional<Room> opt = roomRepository.findById(id);
-        Room entity = opt.orElseThrow(() -> new ResourceNotFound("Room not found"));
+        Room entity = opt.orElseThrow(() -> new ResourceNotFound("Room " + id + " not found"));
         return new RoomDTO(entity);
     }
 
@@ -77,7 +77,7 @@ public class RoomService {
 
     private void copyDtoToEntity(RoomDTO dto, Room entity) {
         entity.setDescription(dto.getDescription());
-        entity.setValue(dto.getValue());
+        entity.setPrice(dto.getPrice());
         entity.setImageUrl(dto.getImageUrl());
     }
 }
