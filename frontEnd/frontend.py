@@ -37,7 +37,7 @@ def deletar_banco(janela_pai):
 # Interface
 root = tk.Tk()
 root.title("Painel Administrativo - Hotel")
-root.geometry("350x600")
+root.geometry("350x550")
 
 tk.Label(root, text="HOTEL BAO", font=("Arial", 14)).pack(pady=10)
 

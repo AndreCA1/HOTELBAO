@@ -2,11 +2,12 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import requests
 from datetime import datetime
-from config import BASE_URL, SESSION
+from config import BASE_URL, SESSION, close_windows, kill_windows
 
 
 # CLIENTES
 def menu_cliente(root):
+    root.withdraw()
     janela_cliente = tk.Toplevel(root)
     janela_cliente.title("Menu Cliente")
     janela_cliente.geometry("300x200")
@@ -29,9 +30,12 @@ def menu_cliente(root):
         command=lambda: alterar_cliente_selecionado(janela_cliente),
     ).pack(pady=5)
 
-    tk.Button(janela_cliente, text="❌ Fechar", command=janela_cliente.destroy).pack(
-        pady=10
-    )
+    tk.Button(
+        janela_cliente,
+        text="❌ Fechar",
+        command=lambda: close_windows(root, janela_cliente),
+    ).pack(pady=10)
+    kill_windows(root, janela_cliente)
 
 
 def _get_clientes():
@@ -60,6 +64,7 @@ def _janela_insercao_alteracao(
     confirmar=False,
     acao=(),  # função: inserir_cliente ou alterar_cliente
 ):
+    janela_pai.withdraw()
     janela = tk.Toplevel(janela_pai)
     janela.title(titulo)
     janela.geometry("350x250")
@@ -105,10 +110,11 @@ def _janela_insercao_alteracao(
                 return
 
         acao(cliente["id"], dados, janela) if cliente else acao(dados, janela)
-        janela.destroy()
+        close_windows(janela_pai, janela)
 
     texto_botao = "✏️ Alterar" if cliente else "➕ Inserir"
     tk.Button(janela, text=texto_botao, command=ao_confirmar).pack(pady=10)
+    kill_windows(janela_pai, janela)
 
 
 def inserir_cliente(dados, janela_pai):
@@ -146,6 +152,7 @@ def excluir_cliente(cliente_id, janela_pai):
 
 
 def excluir_cliente_selecionado(janela_cliente):
+    janela_cliente.withdraw()
     janela_exc_cliente = tk.Toplevel(janela_cliente)
     janela_exc_cliente.title("Excluir Cliente")
     janela_exc_cliente.geometry("300x200")
@@ -171,11 +178,12 @@ def excluir_cliente_selecionado(janela_cliente):
             )
             if confirmacao:
                 excluir_cliente(cliente["id"], janela_exc_cliente)
-                janela_exc_cliente.destroy()
+                close_windows(janela_cliente, janela_exc_cliente)
 
     tk.Button(janela_exc_cliente, text="🗑️ Excluir", command=confirmar_exclusao).pack(
         pady=10
     )
+    kill_windows(janela_cliente, janela_exc_cliente)
 
 
 def alterar_cliente(cliente_id, dados, janela_pai):
@@ -190,6 +198,7 @@ def alterar_cliente(cliente_id, dados, janela_pai):
 
 
 def alterar_cliente_selecionado(janela_cliente):
+    janela_cliente.withdraw()
     janela_alt_cliente = tk.Toplevel(janela_cliente)
     janela_alt_cliente.title("Alterar Cliente")
     janela_alt_cliente.geometry("300x200")
@@ -213,12 +222,15 @@ def alterar_cliente_selecionado(janela_cliente):
                 confirmar=True,
                 acao=alterar_cliente,
             )
+            close_windows(janela_cliente, janela_alt_cliente)
 
     combo.bind("<<ComboboxSelected>>", abrir_janela_edicao)
+    kill_windows(janela_cliente, janela_alt_cliente)
 
 
 # QUARTOS
 def menu_quarto(root):
+    root.withdraw()
     janela_quarto = tk.Toplevel(root)
     janela_quarto.title("Menu Quartos")
     janela_quarto.geometry("300x200")
@@ -241,9 +253,12 @@ def menu_quarto(root):
         command=lambda: alterar_quarto_selecionado(janela_quarto),
     ).pack(pady=5)
 
-    tk.Button(janela_quarto, text="❌ Fechar", command=janela_quarto.destroy).pack(
-        pady=10
-    )
+    tk.Button(
+        janela_quarto,
+        text="❌ Fechar",
+        command=lambda: close_windows(root, janela_quarto),
+    ).pack(pady=10)
+    kill_windows(root, janela_quarto)
 
 
 def _get_quartos():
@@ -270,6 +285,7 @@ def _janela_insercao_alteracao_quarto(
     confirmar=False,
     acao=(),  # função: inserir_quarto ou alterar_quarto
 ):
+    janela_pai.withdraw()
     janela = tk.Toplevel(janela_pai)
     janela.title(titulo)
     janela.geometry("400x300")
@@ -313,10 +329,11 @@ def _janela_insercao_alteracao_quarto(
                 return
 
         acao(quarto["id"], dados, janela) if quarto else acao(dados, janela)
-        janela.destroy()
+        close_windows(janela_pai, janela)
 
     texto_botao = "✏️ Alterar" if quarto else "➕ Inserir"
     tk.Button(janela, text=texto_botao, command=ao_confirmar).pack(pady=10)
+    kill_windows(janela_pai, janela)
 
 
 def inserir_quarto(dados, janela_pai):
@@ -352,6 +369,7 @@ def excluir_quarto(quarto_id, janela_pai):
 
 
 def excluir_quarto_selecionado(janela_quarto):
+    janela_quarto.withdraw()
     janela_exc_quarto = tk.Toplevel(janela_quarto)
     janela_exc_quarto.title("Excluir Quarto")
     janela_exc_quarto.geometry("500x250")
@@ -377,11 +395,12 @@ def excluir_quarto_selecionado(janela_quarto):
             )
             if confirmacao:
                 excluir_quarto(quarto["id"], janela_exc_quarto)
-                janela_exc_quarto.destroy()
+                close_windows(janela_quarto, janela_exc_quarto)
 
     tk.Button(janela_exc_quarto, text="🗑️ Excluir", command=confirmar_exclusao).pack(
         pady=10
     )
+    kill_windows(janela_quarto, janela_exc_quarto)
 
 
 def alterar_quarto(quarto_id, dados, janela_pai):
@@ -396,6 +415,7 @@ def alterar_quarto(quarto_id, dados, janela_pai):
 
 
 def alterar_quarto_selecionado(janela_quarto):
+    janela_quarto.withdraw()
     janela_alt_quarto = tk.Toplevel(janela_quarto)
     janela_alt_quarto.title("Alterar Quarto")
     janela_alt_quarto.geometry("500x250")
@@ -421,10 +441,12 @@ def alterar_quarto_selecionado(janela_quarto):
             )
 
     combo.bind("<<ComboboxSelected>>", abrir_janela_edicao)
+    kill_windows(janela_quarto, janela_alt_quarto)
 
 
 # ESTADIAS
 def menu_estadia(root):
+    root.withdraw()
     janela_estadia = tk.Toplevel(root)
     janela_estadia.title("Menu Estadias")
     janela_estadia.geometry("300x200")
@@ -447,9 +469,12 @@ def menu_estadia(root):
         command=lambda: alterar_estadia_selecionada(janela_estadia),
     ).pack(pady=5)
 
-    tk.Button(janela_estadia, text="❌ Fechar", command=janela_estadia.destroy).pack(
-        pady=10
-    )
+    tk.Button(
+        janela_estadia,
+        text="❌ Fechar",
+        command=lambda: close_windows(root, janela_estadia),
+    ).pack(pady=10)
+    kill_windows(root, janela_estadia)
 
 
 def _get_estadias():
@@ -488,6 +513,7 @@ def _janela_insercao_alteracao_estadia(
     confirmar=False,
     acao=(),
 ):
+    janela_pai.withdraw()
     janela = tk.Toplevel(janela_pai)
     janela.title(titulo)
     janela.geometry("400x350")
@@ -592,10 +618,11 @@ def _janela_insercao_alteracao_estadia(
         else:
             acao(dados, janela)
 
-        janela.destroy()
+        close_windows(janela_pai, janela)
 
     texto_botao = "✏️ Alterar" if estadia else "➕ Inserir"
     tk.Button(janela, text=texto_botao, command=ao_confirmar).pack(pady=15)
+    kill_windows(janela_pai, janela)
 
 
 def inserir_estadia(dados, janela_pai):
@@ -646,6 +673,8 @@ def excluir_estadia_selecionada(janela_pai):
         messagebox.showinfo("Info", "Nenhuma estadia cadastrada.", parent=janela_pai)
         return
 
+    janela_pai.withdraw()
+
     janela = tk.Toplevel(janela_pai)
     janela.title("Excluir Estadia")
     janela.geometry("800x350")
@@ -669,9 +698,10 @@ def excluir_estadia_selecionada(janela_pai):
         estadia_id = int(selecao.split(" - ")[0])
         if messagebox.askyesno("Confirmar", "Deseja excluir esta estadia?"):
             excluir_estadia(estadia_id, janela_pai)
-            janela.destroy()
+            close_windows(janela_pai, janela)
 
     tk.Button(janela, text="🗑️ Excluir", command=confirmar).pack(pady=10)
+    kill_windows(janela_pai, janela)
 
 
 def alterar_estadia(estadia_id, dados, janela_pai):
@@ -686,6 +716,7 @@ def alterar_estadia(estadia_id, dados, janela_pai):
 
 
 def alterar_estadia_selecionada(janela_estadia):
+    janela_estadia.withdraw()
     janela_alt_estadia = tk.Toplevel(janela_estadia)
     janela_alt_estadia.title("Alterar Estadia")
     janela_alt_estadia.geometry("800x350")
@@ -717,3 +748,4 @@ def alterar_estadia_selecionada(janela_estadia):
             )
 
     combo.bind("<<ComboboxSelected>>", abrir_janela_edicao)
+    kill_windows(janela_estadia, janela_alt_estadia)

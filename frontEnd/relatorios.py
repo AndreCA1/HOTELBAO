@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
-from config import BASE_URL, SESSION
+from config import BASE_URL, SESSION, close_windows, kill_windows
 import requests
 
 from cruds import _get_clientes, _atualizar_dropdown
@@ -25,6 +25,7 @@ def listar_clientes(janela_pai):
             )
             return
 
+        janela_pai.withdraw()
         janela_tabela = tk.Toplevel(janela_pai)
         janela_tabela.title("Lista de Clientes")
         janela_tabela.geometry("600x400")
@@ -57,6 +58,7 @@ def listar_clientes(janela_pai):
         # Posicionamento
         tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
+        kill_windows(janela_pai, janela_tabela)
 
     except Exception as e:
         messagebox.showerror("Erro", str(e), parent=janela_pai)
@@ -74,6 +76,7 @@ def listar_quartos(janela_pai):
                 )
                 return
 
+            janela_pai.withdraw()
             janela = tk.Toplevel(janela_pai)
             janela.title("Lista de Quartos")
             janela.geometry("600x300")
@@ -103,6 +106,7 @@ def listar_quartos(janela_pai):
             scrollbar = ttk.Scrollbar(janela, orient="vertical", command=tree.yview)
             tree.configure(yscrollcommand=scrollbar.set)
             scrollbar.pack(side="right", fill="y")
+            kill_windows(janela_pai, janela)
 
         else:
             messagebox.showerror("Erro", "Erro ao listar quartos.", parent=janela_pai)
@@ -143,6 +147,7 @@ def listar_estadias(janela_pai):
         quartos_dict = {q["id"]: q["description"] for q in quartos}
 
         # Criar janela com tabela
+        janela_pai.withdraw()
         janela = tk.Toplevel(janela_pai)
         janela.title("Lista de Estadias")
         janela.geometry("900x300")
@@ -173,6 +178,7 @@ def listar_estadias(janela_pai):
         scrollbar = ttk.Scrollbar(janela, orient="vertical", command=tree.yview)
         tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
+        kill_windows(janela_pai, janela)
 
     except Exception as e:
         messagebox.showerror("Erro", str(e), parent=janela_pai)
@@ -193,6 +199,7 @@ def _get_estadias_cliente(id):
 
 
 def export_nota_fiscal(janela_pai):
+    janela_pai.withdraw()
     janela_nota_fiscal = tk.Toplevel(janela_pai)
     janela_nota_fiscal.title("Gerar Nota fiscal")
     janela_nota_fiscal.geometry("300x200")
@@ -230,6 +237,7 @@ def export_nota_fiscal(janela_pai):
                 )
 
     tk.Button(janela_nota_fiscal, text="⚙ GERAR", command=escolha_cliente).pack(pady=10)
+    kill_windows(janela_pai, janela_nota_fiscal)
 
 
 def gerar_nota_fiscal(cliente, estadias, janela_pai, nome_arquivo="nota_fiscal.pdf"):
@@ -294,6 +302,7 @@ def gerar_nota_fiscal(cliente, estadias, janela_pai, nome_arquivo="nota_fiscal.p
 
 
 def gerador_relatorio(janela_pai, cliente, estadias):
+    janela_pai.withdraw()
     janela_relatorios = tk.Toplevel(janela_pai)
     janela_relatorios.title("Escolha o relatório")
     tk.Label(janela_relatorios, text=f"Cliente: {cliente['name']}").pack(pady=(5, 10))
@@ -339,11 +348,15 @@ def gerador_relatorio(janela_pai, cliente, estadias):
         command=somatorio_etadias,
     ).pack(pady=10)
     tk.Button(
-        janela_relatorios, text="❌ Sair", command=janela_relatorios.destroy
+        janela_relatorios,
+        text="❌ Sair",
+        command=lambda: close_windows(janela_pai, janela_relatorios),
     ).pack(pady=20)
+    kill_windows(janela_pai, janela_relatorios)
 
 
 def relatorios(janela_pai):
+    janela_pai.withdraw()
     janela_relatorios = tk.Toplevel(janela_pai)
     janela_relatorios.title("Gerar relatorios")
     janela_relatorios.geometry("300x200")
@@ -380,5 +393,8 @@ def relatorios(janela_pai):
 
     tk.Button(janela_relatorios, text="⚙ GERAR", command=escolha_cliente).pack(pady=10)
     tk.Button(
-        janela_relatorios, text="❌ Sair", command=janela_relatorios.destroy
+        janela_relatorios,
+        text="❌ Sair",
+        command=lambda: close_windows(janela_pai, janela_relatorios),
     ).pack(pady=20)
+    kill_windows(janela_pai, janela_relatorios)
