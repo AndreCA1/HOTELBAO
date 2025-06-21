@@ -58,6 +58,23 @@ public class ClientResource {
         return ResponseEntity.ok(entity);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_CLIENT')")
+    @GetMapping(value = "/email/{email}", produces = "application/json")
+    @Operation(
+            description = "Find client by EMAIL",
+            summary = "Find client by EMAIL",
+            responses = {
+                    @ApiResponse(description = "Ok", responseCode = "200"),
+                    @ApiResponse(description = "Bad request", responseCode = "400"),
+                    @ApiResponse(description = "UnAuthorized", responseCode = "401"),
+                    @ApiResponse(description = "Forbidden", responseCode = "403"),
+                    @ApiResponse(description = "NotFound", responseCode = "404")
+            })
+    public ResponseEntity<ClientDTO> findByEmail(@PathVariable String email) {
+        ClientDTO entity = clientService.findByEmail(email);
+        return ResponseEntity.ok(entity);
+    }
+
     @PostMapping(produces = "application/json")
     @Operation(
             description = "Create a new client",

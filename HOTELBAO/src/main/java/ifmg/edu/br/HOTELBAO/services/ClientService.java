@@ -51,6 +51,12 @@ public class ClientService implements UserDetailsService {
         return new ClientDTO(entity);
     }
 
+    @Transactional(readOnly = true)
+    public ClientDTO findByEmail(String email){
+        Client entity = clientRepository.findByEmail(email);
+        return new ClientDTO(entity);
+    }
+
     //VALIDAR SE O EMAIL JA TEM CADASTRO
     @Transactional
     public ClientDTO insert(ClientInsertDTO dto){
