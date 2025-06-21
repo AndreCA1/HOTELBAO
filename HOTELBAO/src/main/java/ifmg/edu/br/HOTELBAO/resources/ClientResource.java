@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -24,6 +25,7 @@ public class ClientResource {
     @Autowired
     private ClientService clientService;
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping(produces = "application/json")
     @Operation(
             description = "Find all Clients",
@@ -39,6 +41,7 @@ public class ClientResource {
         return ResponseEntity.ok(entitys);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping(value = "/{id}", produces = "application/json")
     @Operation(
             description = "Find client by ID",
@@ -72,6 +75,7 @@ public class ClientResource {
         return ResponseEntity.created(uri).body(entity);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENT')")
     @PutMapping(value = "/{id}", produces = "application/json")
     @Operation(
             description = "Update client",
@@ -83,6 +87,7 @@ public class ClientResource {
                     @ApiResponse(description = "Forbidden", responseCode = "403"),
                     @ApiResponse(description = "NotFound", responseCode = "404")
             })
+
     public ResponseEntity<ClientDTO> update(@Valid @PathVariable Long id, @RequestBody ClientDTO dto) {
         dto = clientService.update(id, dto);
         return ResponseEntity.ok(dto);

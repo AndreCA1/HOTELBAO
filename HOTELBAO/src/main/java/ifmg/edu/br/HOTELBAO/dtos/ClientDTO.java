@@ -1,12 +1,15 @@
 package ifmg.edu.br.HOTELBAO.dtos;
 
 import ifmg.edu.br.HOTELBAO.entities.Client;
+import ifmg.edu.br.HOTELBAO.entities.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class ClientDTO {
     @Schema(description = "Database generated ID Client")
@@ -24,6 +27,8 @@ public class ClientDTO {
     @NotBlank(message = "Campo obrigatório")
     private String phone;
 
+    Set<RoleDTO> roles = new HashSet<>();
+
     public ClientDTO() {
     }
 
@@ -39,6 +44,8 @@ public class ClientDTO {
         this.name = entity.getName();
         this.email = entity.getEmail();
         this.phone = entity.getPhone();
+
+        entity.getRoles().forEach(role -> this.roles.add(new RoleDTO(role)));
     }
 
     public long getId() {
@@ -72,6 +79,16 @@ public class ClientDTO {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
+    public Set<RoleDTO> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleDTO> roles) {
+        this.roles = roles;
+    }
+
+    public void addRole(RoleDTO role) { roles.add(role); }
 
     @Override
     public boolean equals(Object o) {

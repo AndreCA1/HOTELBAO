@@ -32,11 +32,11 @@ CREATE TABLE daily (
 
 -- Inserção de clientes
 INSERT INTO client (active, name, email, password, phone) VALUES
-(true, 'Ana Souza', 'ana.souza@email.com', 'senha123', '31999990001'),
-(true, 'Carlos Lima', 'carlos.lima@email.com', 'senha456', '31999990002'),
-(true, 'Marina Alves', 'marina.alves@email.com', 'senha789', '31999990003'),
-(true, 'João Pedro', 'joao.pedro@email.com', 'senha321', '31999990004'),
-(true, 'Beatriz Silva', 'beatriz.silva@email.com', 'senha654', '31999990005');
+(true, 'Ana Souza', 'ana.souza@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', '31999990001'),
+(true, 'Carlos Lima', 'carlos.lima@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', '31999990002'),
+(true, 'Marina Alves', 'marina.alves@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', '31999990003'),
+(true, 'João Pedro', 'joao.pedro@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', '31999990004'),
+(true, 'Beatriz Silva', 'beatriz.silva@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', '31999990005');
 
 -- Inserção de quartos
 INSERT INTO room (active, description, price, image_url) VALUES

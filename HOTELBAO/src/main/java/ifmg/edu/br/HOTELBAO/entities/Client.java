@@ -2,14 +2,17 @@ package ifmg.edu.br.HOTELBAO.entities;
 
 import ifmg.edu.br.HOTELBAO.dtos.ClientDTO;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "client")
-public class Client {
+public class Client implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -19,6 +22,10 @@ public class Client {
     private String email;
     private String password;
     private String phone;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "clientRole", joinColumns = @JoinColumn(name = "clientId"), inverseJoinColumns = @JoinColumn(name = "roleId"))
+    private Set<Role> roles = new HashSet<>();
 
 
     public Client() {
@@ -40,6 +47,15 @@ public class Client {
         this.name = dto.getName();
         this.email = dto.getEmail();
         this.phone = dto.getPhone();
+    }
+
+    public Client(ClientDTO dto, Set<Role> roles) {
+        this.id = dto.getId();
+        this.active = true;
+        this.name = dto.getName();
+        this.email = dto.getEmail();
+        this.phone = dto.getPhone();
+        this.setRoles(roles);
     }
 
     //get and set
@@ -71,12 +87,12 @@ public class Client {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public String getPhone() {
@@ -86,7 +102,49 @@ public class Client {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-    //end get and set
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public void addRole(Role role) { roles.add(role); }
+
+    public boolean hasRole(String roleName){ return !roles.stream().filter(r -> r.equals(roleName)).toList().isEmpty(); }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles;
+    }
+
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 
     //equals and hashcode
     @Override
@@ -109,6 +167,7 @@ public class Client {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", phone='" + phone + '\'' +
+                ", roles=" + roles +
                 '}';
     }
 }

@@ -2,8 +2,12 @@ package ifmg.edu.br.HOTELBAO.services;
 
 import ifmg.edu.br.HOTELBAO.dtos.ClientDTO;
 import ifmg.edu.br.HOTELBAO.dtos.ClientInsertDTO;
+import ifmg.edu.br.HOTELBAO.dtos.RoleDTO;
 import ifmg.edu.br.HOTELBAO.entities.Client;
+import ifmg.edu.br.HOTELBAO.entities.Role;
+import ifmg.edu.br.HOTELBAO.projections.ClientDetailsProjection;
 import ifmg.edu.br.HOTELBAO.repository.ClientRepository;
+import ifmg.edu.br.HOTELBAO.repository.RoleRepository;
 import ifmg.edu.br.HOTELBAO.services.exceptions.DataBaseException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.ResourceNotFound;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,14 +20,19 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ClientService implements UserDetailsService {
     @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -69,7 +78,7 @@ public class ClientService implements UserDetailsService {
         }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
         if(!clientRepository.existsById(id)) {
             throw new ResourceNotFound("Client not found: " + id);
@@ -85,10 +94,28 @@ public class ClientService implements UserDetailsService {
         entity.setEmail(dto.getEmail());
         entity.setName(dto.getName());
         entity.setPhone(dto.getPhone());
+
+        entity.getRoles().clear();
+        for (RoleDTO roleDto : dto.getRoles()) {
+            Role role = roleRepository.getReferenceById(roleDto.getId());
+            entity.getRoles().add(role);
+        }
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
+        List<ClientDetailsProjection> result = clientRepository.searchClientAndRoleByEmail(username);
+
+        if (result.isEmpty()){
+            throw new UsernameNotFoundException("Client not found");
+        }
+
+        Client client = new Client();
+        client.setEmail(result.get(0).getClientEmail());
+        client.setPassword(result.get(0).getPassword());
+        for (ClientDetailsProjection p : result){
+            client.addRole(new Role(p.getRoleId(), p.getAuthority()));
+        }
+        return client;
     }
 }
