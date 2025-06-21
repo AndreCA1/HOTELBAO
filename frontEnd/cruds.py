@@ -94,10 +94,11 @@ def _janela_insercao_alteracao(
     entry_password.insert(0, "")
 
     def ao_confirmar():
+        password = entry_password.get()
         dados = {
             "name": entry_nome.get(),
             "email": entry_email.get(),
-            "password": entry_password.get(),
+            "password": password if password else entry_telefone.get(),
             "phone": entry_telefone.get(),
         }
 
@@ -641,6 +642,21 @@ def inserir_estadia(dados, janela_pai):
 def cadastro_estadia(janela_pai):
     clientes = _get_clientes()
     quartos = _get_quartos()
+
+    _janela_insercao_alteracao_estadia(
+        janela_pai,
+        titulo="Inserir Estadia",
+        confirmar=False,
+        acao=inserir_estadia,
+        clientes=clientes,
+        quartos=quartos,
+    )
+
+
+def cadastro_estadia_cliente_pre_select(cliente, janela_pai):
+    quartos = _get_quartos()
+    clientes = []
+    clientes.append(cliente)
 
     _janela_insercao_alteracao_estadia(
         janela_pai,

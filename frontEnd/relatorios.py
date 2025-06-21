@@ -398,3 +398,19 @@ def relatorios(janela_pai):
         command=lambda: close_windows(janela_pai, janela_relatorios),
     ).pack(pady=20)
     kill_windows(janela_pai, janela_relatorios)
+
+
+def relatorio_cliente_pre_select(janela_pai, cliente):
+    estadias = _get_estadias_cliente(cliente["id"])
+    if estadias:
+        gerador_relatorio(
+            janela_pai,
+            cliente,
+            estadias,
+        )
+    else:
+        messagebox.showerror(
+            "Erro",
+            f"Erro ao buscar as estadias do cliente: {cliente['name']}",
+            parent=janela_pai,
+        )
