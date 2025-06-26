@@ -1,7 +1,10 @@
 package ifmg.edu.br.HOTELBAO.repository;
 
+import ifmg.edu.br.HOTELBAO.dtos.ClientDTO;
+import ifmg.edu.br.HOTELBAO.dtos.ClientInsertDTO;
 import ifmg.edu.br.HOTELBAO.entities.Client;
 import ifmg.edu.br.HOTELBAO.projections.ClientDetailsProjection;
+import jakarta.validation.Valid;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

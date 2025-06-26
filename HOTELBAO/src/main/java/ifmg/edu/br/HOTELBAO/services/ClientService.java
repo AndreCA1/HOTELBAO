@@ -69,10 +69,22 @@ public class ClientService implements UserDetailsService {
 
         copyDtoToEntity(dto, entity);
         entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+        entity.getRoles().clear();
         entity.addRole(roleRepository.getReferenceById(2L));
         Client novo = clientRepository.save(entity);
 
         return new ClientDTO(novo);
+    }
+
+    @Transactional
+    public ClientDTO signup(ClientInsertDTO dto) {
+        Client entity = new Client();
+        copyDtoToEntity(dto, entity);
+        entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+        entity.getRoles().clear();
+        entity.addRole(roleRepository.getReferenceById(2L));
+        entity = clientRepository.save(entity);
+        return new ClientDTO(entity);
     }
 
     @Transactional

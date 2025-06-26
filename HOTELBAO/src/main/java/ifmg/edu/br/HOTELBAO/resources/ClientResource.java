@@ -92,6 +92,14 @@ public class ClientResource {
         return ResponseEntity.created(uri).body(entity);
     }
 
+    @PostMapping("/signup")
+    public ResponseEntity<ClientDTO> signup(@RequestBody @Valid ClientInsertDTO dto) {
+        ClientDTO newDto = clientService.signup(dto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(newDto.getId()).toUri();
+        return ResponseEntity.created(uri).body(newDto);
+    }
+
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENT')")
     @PutMapping(value = "/{id}", produces = "application/json")
     @Operation(
