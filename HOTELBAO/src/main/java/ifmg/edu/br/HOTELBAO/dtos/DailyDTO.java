@@ -1,10 +1,8 @@
 package ifmg.edu.br.HOTELBAO.dtos;
 
-import ifmg.edu.br.HOTELBAO.entities.Client;
 import ifmg.edu.br.HOTELBAO.entities.Daily;
 import ifmg.edu.br.HOTELBAO.entities.Room;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 
 import java.util.Date;
 import java.util.Objects;
@@ -12,25 +10,27 @@ import java.util.Objects;
 public class DailyDTO {
     @Schema(description = "Database generated ID Daily")
     private long id;
+
     @Schema(description = "Start date of stay")
     private Date dailyDate;
-    private Client client;
+
+    private long clientId;
     private Room room;
 
     public DailyDTO() {
     }
 
-    public DailyDTO(long id, Date dailyDate, Client client, Room room) {
+    public DailyDTO(long id, Date dailyDate, long clientId, Room room) {
         this.id = id;
         this.dailyDate = dailyDate;
-        this.client = client;
+        this.clientId = clientId;
         this.room = room;
     }
 
     public DailyDTO(Daily entity) {
         this.id = entity.getId();
         this.dailyDate = entity.getDailyDate();
-        this.client = entity.getClient();
+        this.clientId = entity.getClient().getId();
         this.room = entity.getRoom();
     }
 
@@ -50,12 +50,12 @@ public class DailyDTO {
         this.dailyDate = dailyDate;
     }
 
-    public Client getClient() {
-        return client;
+    public long getClientId() {
+        return clientId;
     }
 
-    public void setClient(Client client) {
-        this.client = client;
+    public void setClientId(long clientId) {
+        this.clientId = clientId;
     }
 
     public Room getRoom() {
@@ -82,7 +82,7 @@ public class DailyDTO {
         return "DailyDTO{" +
                 "id=" + id +
                 ", dailyDate=" + dailyDate +
-                ", client=" + client +
+                ", clientId=" + clientId +
                 ", room=" + room +
                 '}';
     }

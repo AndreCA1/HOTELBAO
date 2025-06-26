@@ -9,6 +9,7 @@ import ifmg.edu.br.HOTELBAO.projections.ClientDetailsProjection;
 import ifmg.edu.br.HOTELBAO.repository.ClientRepository;
 import ifmg.edu.br.HOTELBAO.repository.RoleRepository;
 import ifmg.edu.br.HOTELBAO.services.exceptions.DataBaseException;
+import ifmg.edu.br.HOTELBAO.services.exceptions.EmailException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.ResourceNotFound;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,14 +58,18 @@ public class ClientService implements UserDetailsService {
         return new ClientDTO(entity);
     }
 
-    //VALIDAR SE O EMAIL JA TEM CADASTRO
     @Transactional
     public ClientDTO insert(ClientInsertDTO dto){
+
+        //Testa se o e-mail ja esta cadastrado
+        Client test = clientRepository.findByEmail(dto.getEmail());
+        if(test != null) throw new EmailException("Email already registered");
+
         Client entity = new Client();
 
         copyDtoToEntity(dto, entity);
         entity.setPassword(passwordEncoder.encode(dto.getPassword()));
-
+        entity.addRole(roleRepository.getReferenceById(2L));
         Client novo = clientRepository.save(entity);
 
         return new ClientDTO(novo);

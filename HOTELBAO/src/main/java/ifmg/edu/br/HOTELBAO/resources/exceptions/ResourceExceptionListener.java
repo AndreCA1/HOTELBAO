@@ -1,5 +1,6 @@
 package ifmg.edu.br.HOTELBAO.resources.exceptions;
 
+import ifmg.edu.br.HOTELBAO.services.exceptions.DailyException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.DataBaseException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.EmailException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.ResourceNotFound;
@@ -68,13 +69,24 @@ public class ResourceExceptionListener {
     @ExceptionHandler(EmailException.class)
     public ResponseEntity<StandartError> EmailException(EmailException ex, HttpServletRequest request) {
         StandartError error = new StandartError();
-
         error.setTimestamp(Instant.now());
         HttpStatus status = HttpStatus.BAD_REQUEST;
         error.setStatus(status.value());
         error.setMessage(ex.getMessage());
         error.setError("Email failed!");
         error.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(DailyException.class)
+    public ResponseEntity<StandartError> DailyException(DailyException ex, HttpServletRequest request) {
+        StandartError error = new StandartError();
+        error.setTimestamp(Instant.now());
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        error.setStatus(status.value());
+        error.setMessage(ex.getMessage());
+        error.setError("Daily Exception");
 
         return ResponseEntity.status(status).body(error);
     }

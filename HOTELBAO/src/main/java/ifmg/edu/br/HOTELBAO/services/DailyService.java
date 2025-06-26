@@ -5,10 +5,14 @@ import ifmg.edu.br.HOTELBAO.dtos.DailyDTO;
 import ifmg.edu.br.HOTELBAO.dtos.DailyInsertDTO;
 import ifmg.edu.br.HOTELBAO.entities.Client;
 import ifmg.edu.br.HOTELBAO.entities.Daily;
+import ifmg.edu.br.HOTELBAO.entities.Role;
 import ifmg.edu.br.HOTELBAO.entities.Room;
+import ifmg.edu.br.HOTELBAO.projections.ClientDetailsProjection;
+import ifmg.edu.br.HOTELBAO.projections.DailyDetailsProjection;
 import ifmg.edu.br.HOTELBAO.repository.ClientRepository;
 import ifmg.edu.br.HOTELBAO.repository.DailyRepository;
 import ifmg.edu.br.HOTELBAO.repository.RoomRepository;
+import ifmg.edu.br.HOTELBAO.services.exceptions.DailyException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.DataBaseException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.ResourceNotFound;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,6 +23,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -46,8 +52,33 @@ public class DailyService {
         return new DailyDTO(entity);
     }
 
+    @Transactional(readOnly = true)
+    public Page<DailyDTO> findByClientId(Long id, Pageable pageable) {
+        Page<DailyDetailsProjection> result = dailyRepository.searchDailyByClientId(id, pageable);
+
+        if (result.isEmpty()) throw new ResourceNotFound("No daily registered for this customer");
+
+        return result.map(p -> {
+            Room room = new Room();
+            room.setId(p.getRoom_id());
+            room.setDescription(p.getRoom_description());
+            room.setPrice(p.getRoom_price());
+            room.setImageUrl(p.getRoom_image_url());
+
+            return new DailyDTO(
+                    p.getId(),
+                    p.getDaily_date(),
+                    p.getClient_id(),
+                    room
+            );
+        });
+    }
+
+
     @Transactional
     public DailyDTO insert(DailyInsertDTO dto){
+
+        if(dailyRepository.searchDailyByRoomAndDate(dto.getRoom(), dto.getDailyDate()) == 1) throw new DailyException("Room already reserved");
         Daily entity = new Daily();
 
         //Pegando cliente
@@ -102,11 +133,5 @@ public class DailyService {
         } catch (DataIntegrityViolationException e) {
             throw new DataBaseException("Integrity violation");
         }
-    }
-
-    private void copyDtoToEntity(DailyDTO dto, Daily entity) {
-        entity.setDailyDate(dto.getDailyDate());
-        entity.setClient(dto.getClient());
-        entity.setRoom(dto.getRoom());
     }
 }

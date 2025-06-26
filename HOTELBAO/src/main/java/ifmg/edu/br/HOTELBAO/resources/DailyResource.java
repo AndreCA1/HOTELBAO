@@ -55,6 +55,22 @@ public class DailyResource {
         return ResponseEntity.ok(entity);
     }
 
+    @GetMapping(value = "/client/{id}", produces = "application/json")
+    @Operation(
+            description = "Find daily by ID",
+            summary = "Find daily by ID",
+            responses = {
+                    @ApiResponse(description = "Ok", responseCode = "200"),
+                    @ApiResponse(description = "Bad request", responseCode = "400"),
+                    @ApiResponse(description = "UnAuthorized", responseCode = "401"),
+                    @ApiResponse(description = "Forbidden", responseCode = "403"),
+                    @ApiResponse(description = "NotFound", responseCode = "404")
+            })
+    public ResponseEntity<Page<DailyDTO>> findByClientId(@PathVariable Long id, Pageable pageable) {
+        Page<DailyDTO> entitys = dailyService.findByClientId(id, pageable);
+        return ResponseEntity.ok(entitys);
+    }
+
     @PostMapping(produces = "application/json")
     @Operation(
             description = "Create a new daily",
