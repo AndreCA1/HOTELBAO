@@ -36,7 +36,7 @@ def listar_clientes(janela_pai):
         # Definir cabeçalhos
         for col in colunas:
             tree.heading(col, text=col)
-            tree.column(col, width=140)
+            tree.column(col, width=140, anchor="center")
 
         # Inserir dados
         for cliente in clientes:
@@ -85,9 +85,16 @@ def listar_quartos(janela_pai):
                 janela, columns=("ID", "Descrição", "Preço", "Imagem"), show="headings"
             )
             tree.heading("ID", text="ID")
+            tree.column("ID", anchor="center")
+
             tree.heading("Descrição", text="Descrição")
+            tree.column("Descrição", anchor="center")
+
             tree.heading("Preço", text="Preço")
+            tree.column("Preço", anchor="center")
+
             tree.heading("Imagem", text="Imagem")
+            tree.column("Imagem", anchor="center")
 
             for quarto in quartos:
                 tree.insert(
@@ -156,9 +163,16 @@ def listar_estadias(janela_pai):
             janela, columns=("ID", "Cliente", "Quarto", "Data"), show="headings"
         )
         tree.heading("ID", text="ID")
+        tree.column("ID", anchor="center")
+
         tree.heading("Cliente", text="Cliente")
+        tree.column("Cliente", anchor="center")
+
         tree.heading("Quarto", text="Quarto")
+        tree.column("Quarto", anchor="center")
+
         tree.heading("Data", text="Data")
+        tree.column("Data", anchor="center")
 
         for est in estadias:
             nome_cliente = clientes_dict.get(
@@ -186,8 +200,7 @@ def listar_estadias(janela_pai):
 
 def _get_estadias_cliente(id):
     try:
-        # TODO: trocar o link para um onde a pesquisa retorne todas as diárias referentes a um cliente
-        response = SESSION.get(f"{BASE_URL}/daily")
+        response = SESSION.get(f"{BASE_URL}/daily/client/{id}")
 
         response.raise_for_status()
         dados = response.json()
@@ -344,7 +357,7 @@ def gerador_relatorio(janela_pai, cliente, estadias):
     ).pack(pady=10)
     tk.Button(
         janela_relatorios,
-        text="📊 Maior valor da estadia do cliente",
+        text="📊 Valor total das estadias do cliente",
         command=somatorio_etadias,
     ).pack(pady=10)
     tk.Button(
