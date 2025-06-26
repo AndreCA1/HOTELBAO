@@ -1,0 +1,2 @@
+ALTER TABLE client DROP COLUMN active;
+ALTER TABLE room DROP COLUMN active;
