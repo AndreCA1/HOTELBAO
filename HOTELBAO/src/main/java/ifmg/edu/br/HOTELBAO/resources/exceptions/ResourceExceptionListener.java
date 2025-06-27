@@ -1,9 +1,6 @@
 package ifmg.edu.br.HOTELBAO.resources.exceptions;
 
-import ifmg.edu.br.HOTELBAO.services.exceptions.DailyException;
-import ifmg.edu.br.HOTELBAO.services.exceptions.DataBaseException;
-import ifmg.edu.br.HOTELBAO.services.exceptions.EmailException;
-import ifmg.edu.br.HOTELBAO.services.exceptions.ResourceNotFound;
+import ifmg.edu.br.HOTELBAO.services.exceptions.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +20,34 @@ public class ResourceExceptionListener {
     //Indica que quando o erro "ResourceNotFound.class" essa é a função que deve ser chamada
     @ExceptionHandler(ResourceNotFound.class)
     public ResponseEntity<StandartError> resourceNotFound(ResourceNotFound ex, HttpServletRequest request) {
+        StandartError error = new StandartError();
+
+        error.setTimestamp(Instant.now());
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        error.setStatus(status.value());
+        error.setMessage(ex.getMessage());
+        error.setError("Resource not found");
+        error.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(ClientException.class)
+    public ResponseEntity<StandartError> clientException (ClientException ex, HttpServletRequest request) {
+        StandartError error = new StandartError();
+
+        error.setTimestamp(Instant.now());
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        error.setStatus(status.value());
+        error.setMessage(ex.getMessage());
+        error.setError("Resource not found");
+        error.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(RoomException.class)
+    public ResponseEntity<StandartError> roomException (RoomException ex, HttpServletRequest request) {
         StandartError error = new StandartError();
 
         error.setTimestamp(Instant.now());
