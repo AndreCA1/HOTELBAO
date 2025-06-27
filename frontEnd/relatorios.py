@@ -5,13 +5,6 @@ import requests
 
 from cruds import _get_clientes, _atualizar_dropdown
 
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, TableStyle
-from datetime import datetime
-
-
 def listar_clientes(janela_pai):
     try:
         r = SESSION.get(f"{BASE_URL}/client")
@@ -233,86 +226,28 @@ def export_nota_fiscal(janela_pai):
 
         cliente = next((c for c in clientes if c["name"] == nome), None)
         if cliente:
-            estadias = _get_estadias_cliente(cliente["id"])
-            if estadias:
-                gerar_nota_fiscal(
-                    cliente,
-                    estadias,
-                    janela_nota_fiscal,
-                    f"nota_fiscal_{cliente['name']}.pdf",
+            try:
+                response = SESSION.get(
+                    f"{BASE_URL}/invoice/client/{cliente['id']}",
+                    stream=True,
+                )
+                response.raise_for_status()
+
+                nome_arquivo = f"nota_fiscal_{cliente['name'].replace(' ', '_')}.pdf"
+                with open(nome_arquivo, "wb") as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+
+                messagebox.showinfo(
+                    "Sucesso", f"Nota fiscal salva como: {nome_arquivo}", parent=janela_nota_fiscal
                 )
                 janela_nota_fiscal.destroy()
-            else:
-                messagebox.showerror(
-                    "Erro",
-                    f"Erro ao buscar as estadias do cliente: {cliente['name']}",
-                    parent=janela_nota_fiscal,
-                )
+
+            except requests.RequestException as e:
+                messagebox.showerror("Erro", f"Erro ao baixar nota fiscal:\n{e}", parent=janela_nota_fiscal)
 
     tk.Button(janela_nota_fiscal, text="⚙ GERAR", command=escolha_cliente).pack(pady=10)
     kill_windows(janela_pai, janela_nota_fiscal)
-
-
-def gerar_nota_fiscal(cliente, estadias, janela_pai, nome_arquivo="nota_fiscal.pdf"):
-    c = canvas.Canvas(nome_arquivo, pagesize=A4)
-    largura, altura = A4
-    y = altura - 50
-
-    # Título
-    c.setFont("Helvetica-Bold", 18)
-    c.drawCentredString(largura / 2, y, "NOTA FISCAL")
-    y -= 40
-
-    # Dados do cliente
-    c.setFont("Helvetica", 12)
-    c.drawString(50, y, f"Nome: {cliente['name']}")
-    y -= 20
-    c.drawString(50, y, "Endereço: Rua do centro")
-    y -= 20
-    c.drawString(50, y, "Cidade: Formiga")
-    y -= 40
-
-    # Tabela de estadias
-    data = [["Quarto", "Valor (R$)"]]
-    total = 0.0
-    for estadia in estadias:
-        descricao = estadia["room"]["description"]
-        valor = estadia["room"]["price"]
-        data.append([descricao, f"{valor:.2f}"])
-        total += valor
-
-    tabela = Table(data, colWidths=[350, 100])
-    tabela.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
-                ("GRID", (0, 0), (-1, -1), 1, colors.black),
-            ]
-        )
-    )
-
-    # Desenhar a tabela na posição (x, y)
-    tabela.wrapOn(c, largura, altura)
-    tabela.drawOn(c, 50, y - (len(data) * 20))
-    y -= len(data) * 20 + 40
-
-    # Total
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(50, y, f"TOTAL: R$ {total:.2f}")
-
-    # Rodapé
-    c.setFont("Helvetica-Oblique", 8)
-    c.drawRightString(
-        largura - 50, 30, f"Emitido em: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}"
-    )
-
-    c.save()
-    messagebox.showinfo("Sucesso", "Nota fiscal baixada!", parent=janela_pai)
-
 
 def gerador_relatorio(janela_pai, cliente, estadias):
     janela_pai.withdraw()

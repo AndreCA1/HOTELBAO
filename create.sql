@@ -787,3 +787,14 @@ alter table client_role add constraint FKsebjrrme324jp4snmn2pqhjm9 foreign key (
 alter table client_role add constraint FKjmyum5xyl9f5s6oy1xaneoe35 foreign key (client_id) references client (id);
 alter table daily add constraint FK6waaijurjce75g8gw2fa3masm foreign key (client_id) references client (id) on delete cascade;
 alter table daily add constraint FKpus8hx3ixpwh88v074a1ot8fy foreign key (room_id) references room (id) on delete cascade;
+create table client (id bigint not null auto_increment, email varchar(255), name varchar(255), password varchar(255), phone varchar(255), primary key (id)) engine=InnoDB;
+create table client_role (client_id bigint not null, role_id bigint not null, primary key (client_id, role_id)) engine=InnoDB;
+create table daily (client_id bigint not null, daily_date datetime(6), id bigint not null auto_increment, room_id bigint not null, primary key (id)) engine=InnoDB;
+create table password_recover (expiration datetime(6) not null, id bigint not null auto_increment, email varchar(255) not null, token varchar(255) not null, primary key (id)) engine=InnoDB;
+create table role (id bigint not null auto_increment, authority varchar(255), primary key (id)) engine=InnoDB;
+create table room (price float(23) not null, id bigint not null auto_increment, description TEXT, image_url varchar(255), primary key (id)) engine=InnoDB;
+alter table client add constraint UKbfgjs3fem0hmjhvih80158x29 unique (email);
+alter table client_role add constraint FKsebjrrme324jp4snmn2pqhjm9 foreign key (role_id) references role (id);
+alter table client_role add constraint FKjmyum5xyl9f5s6oy1xaneoe35 foreign key (client_id) references client (id) on delete cascade;
+alter table daily add constraint FK6waaijurjce75g8gw2fa3masm foreign key (client_id) references client (id) on delete cascade;
+alter table daily add constraint FKpus8hx3ixpwh88v074a1ot8fy foreign key (room_id) references room (id) on delete cascade;

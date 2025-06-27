@@ -3,8 +3,10 @@ package ifmg.edu.br.HOTELBAO.services;
 import ifmg.edu.br.HOTELBAO.dtos.RoomDTO;
 import ifmg.edu.br.HOTELBAO.entities.Room;
 import ifmg.edu.br.HOTELBAO.repository.RoomRepository;
+import ifmg.edu.br.HOTELBAO.services.exceptions.ClientException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.DataBaseException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.ResourceNotFound;
+import ifmg.edu.br.HOTELBAO.services.exceptions.RoomException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,6 +29,8 @@ public class RoomService {
     @Transactional(readOnly = true)
     public Page<RoomDTO> findAll(Pageable pageable){
         Page<Room> page = roomRepository.findAll(pageable);
+
+        if(page.isEmpty()) throw new RoomException("Não existem quartos cadastros no sistema!");
 
         return page.map(RoomDTO::new);
     }

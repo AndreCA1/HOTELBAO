@@ -2,6 +2,8 @@ package ifmg.edu.br.HOTELBAO.entities;
 
 import ifmg.edu.br.HOTELBAO.dtos.ClientDTO;
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -21,6 +23,7 @@ public class Client implements UserDetails {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "clientRole", joinColumns = @JoinColumn(name = "clientId"), inverseJoinColumns = @JoinColumn(name = "roleId"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Role> roles = new HashSet<>();
 
     public Client() {

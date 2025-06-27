@@ -12,6 +12,7 @@ import ifmg.edu.br.HOTELBAO.projections.DailyDetailsProjection;
 import ifmg.edu.br.HOTELBAO.repository.ClientRepository;
 import ifmg.edu.br.HOTELBAO.repository.DailyRepository;
 import ifmg.edu.br.HOTELBAO.repository.RoomRepository;
+import ifmg.edu.br.HOTELBAO.services.exceptions.ClientException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.DailyException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.DataBaseException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.ResourceNotFound;
@@ -42,6 +43,8 @@ public class DailyService {
     public Page<DailyDTO> findAll(Pageable pageable){
         Page<Daily> page = dailyRepository.findAll(pageable);
 
+        if(page.isEmpty()) throw new DailyException("Não existem estadias lançadas no sistema!");
+
         return page.map(DailyDTO::new);
     }
 
@@ -56,7 +59,7 @@ public class DailyService {
     public Page<DailyDTO> findByClientId(Long id, Pageable pageable) {
         Page<DailyDetailsProjection> result = dailyRepository.searchDailyByClientId(id, pageable);
 
-        if (result.isEmpty()) throw new ResourceNotFound("No daily registered for this customer");
+        if (result.isEmpty()) throw new ClientException("Não existem estadias cadastradas no sistema!");
 
         return result.map(p -> {
             Room room = new Room();
@@ -102,6 +105,8 @@ public class DailyService {
     public DailyDTO update(Long id, DailyInsertDTO dto) {
         try{
             Daily entity = dailyRepository.getReferenceById(id);
+
+            if(dailyRepository.searchDailyByRoomAndDate(dto.getRoom(), dto.getDailyDate()) == 1) throw new DailyException("Room already reserved");
 
             //Pegando cliente
             Optional<Client> obj = clientRepository.findById(dto.getClient());

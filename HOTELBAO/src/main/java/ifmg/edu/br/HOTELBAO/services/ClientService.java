@@ -8,6 +8,7 @@ import ifmg.edu.br.HOTELBAO.entities.Role;
 import ifmg.edu.br.HOTELBAO.projections.ClientDetailsProjection;
 import ifmg.edu.br.HOTELBAO.repository.ClientRepository;
 import ifmg.edu.br.HOTELBAO.repository.RoleRepository;
+import ifmg.edu.br.HOTELBAO.services.exceptions.ClientException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.DataBaseException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.EmailException;
 import ifmg.edu.br.HOTELBAO.services.exceptions.ResourceNotFound;
@@ -41,6 +42,8 @@ public class ClientService implements UserDetailsService {
     @Transactional(readOnly = true)
     public Page<ClientDTO> findAll(Pageable pageable){
         Page<Client> page = clientRepository.findAll(pageable);
+
+        if(page.isEmpty()) throw new ClientException("Não existem clientes cadastros no sistema!");
 
         return page.map(ClientDTO::new);
     }

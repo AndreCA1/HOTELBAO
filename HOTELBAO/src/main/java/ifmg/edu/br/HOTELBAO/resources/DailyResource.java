@@ -57,8 +57,8 @@ public class DailyResource {
 
     @GetMapping(value = "/client/{id}", produces = "application/json")
     @Operation(
-            description = "Find daily by ID",
-            summary = "Find daily by ID",
+            description = "Find daily by Client",
+            summary = "Find daily by Client",
             responses = {
                     @ApiResponse(description = "Ok", responseCode = "200"),
                     @ApiResponse(description = "Bad request", responseCode = "400"),

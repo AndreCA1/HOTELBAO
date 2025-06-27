@@ -1,4 +1,6 @@
 import tkinter as tk
+import jwt
+
 from tkinter import messagebox, simpledialog
 from cruds import (
     cadastro_estadia_cliente_pre_select,
@@ -23,7 +25,6 @@ from config import (
     close_windows,
     kill_windows,
 )
-import jwt
 
 
 def get_logged_client(email):
@@ -79,6 +80,7 @@ def menu_principal(root, authorities, cliente):
         ).pack(pady=5)
         tk.Button(
             menus,
+            #TODO: adicionar confirmação da listagem e caso não tenha quarto, clientes ou estadias deve mostrar "Não existem ... cadastrados no sistema"
             text="📋 Listar dados dos clientes",
             command=lambda: listar_clientes(menus),
         ).pack(pady=5)
@@ -109,8 +111,8 @@ def menu_principal(root, authorities, cliente):
             command=lambda: relatorios(menus),
         ).pack(pady=5)
     else:
-        # TODO: adicionar botão e função para criar conta?
-        # TODO: Adicionar botão e função para recuperar senha
+        # TODO: adicionar botão da função signup
+        # TODO: Adicionar botão da função recuperar senha
         tk.Button(
             menus,
             text="🕒 Reservar",
