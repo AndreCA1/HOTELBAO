@@ -10,7 +10,7 @@ CREATE TABLE client_role (
     client_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL,
     PRIMARY KEY (client_id, role_id),
-    CONSTRAINT fk_clientrole_client FOREIGN KEY (client_id) REFERENCES client(id),
+    CONSTRAINT fk_clientrole_client FOREIGN KEY (client_id) REFERENCES client(id) ON DELETE CASCADE,
     CONSTRAINT fk_clientrole_role FOREIGN KEY (role_id) REFERENCES role(id)
 ) ENGINE=InnoDB;
 

@@ -26,8 +26,8 @@ CREATE TABLE daily (
     client_id BIGINT NOT NULL,
     room_id BIGINT NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_client FOREIGN KEY (client_id) REFERENCES client(id),
-    CONSTRAINT fk_room FOREIGN KEY (room_id) REFERENCES room(id)
+    CONSTRAINT fk_client FOREIGN KEY (client_id) REFERENCES client(id) ON DELETE CASCADE,
+    CONSTRAINT fk_room FOREIGN KEY (room_id) REFERENCES room(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- Inserção de clientes
