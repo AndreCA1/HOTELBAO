@@ -58,6 +58,7 @@ public class ClientService implements UserDetailsService {
     @Transactional(readOnly = true)
     public ClientDTO findByEmail(String email){
         Client entity = clientRepository.findByEmail(email);
+        if (entity == null) throw new ResourceNotFound("Client with email: " + email + " not found");
         return new ClientDTO(entity);
     }
 
