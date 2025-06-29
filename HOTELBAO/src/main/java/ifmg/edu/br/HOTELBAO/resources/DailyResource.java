@@ -103,7 +103,7 @@ public class DailyResource {
                     @ApiResponse(description = "Forbidden", responseCode = "403"),
                     @ApiResponse(description = "NotFound", responseCode = "404")
             })
-    public ResponseEntity<DailyDTO> update(@Valid @PathVariable Long id, @RequestBody DailyInsertDTO dto) {
+    public ResponseEntity<DailyDTO> update(@PathVariable Long id, @Valid @RequestBody DailyInsertDTO dto) {
         DailyDTO responseDTO = dailyService.update(id, dto);
         return ResponseEntity.ok(responseDTO);
     }

@@ -113,7 +113,7 @@ public class ClientResource {
                     @ApiResponse(description = "NotFound", responseCode = "404")
             })
 
-    public ResponseEntity<ClientDTO> update(@Valid @PathVariable Long id, @RequestBody ClientDTO dto) {
+    public ResponseEntity<ClientDTO> update(@PathVariable Long id, @Valid @RequestBody ClientDTO dto) {
         dto = clientService.update(id, dto);
         return ResponseEntity.ok(dto);
     }

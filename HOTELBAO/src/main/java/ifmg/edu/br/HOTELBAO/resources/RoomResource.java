@@ -87,7 +87,7 @@ public class RoomResource {
                     @ApiResponse(description = "Forbidden", responseCode = "403"),
                     @ApiResponse(description = "NotFound", responseCode = "404")
             })
-    public ResponseEntity<RoomDTO> update(@Valid @PathVariable Long id, @RequestBody RoomDTO dto) {
+    public ResponseEntity<RoomDTO> update(@PathVariable Long id, @Valid @RequestBody RoomDTO dto) {
         dto = roomService.update(id, dto);
         return ResponseEntity.ok(dto);
     }
