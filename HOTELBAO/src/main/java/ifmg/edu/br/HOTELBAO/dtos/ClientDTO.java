@@ -21,6 +21,7 @@ public class ClientDTO {
 
     @Schema(description = "Client email and username")
     @Email(message = "Favor informar Email válido")
+    @NotBlank(message = "Email não pode ser vazio")
     private String email;
 
     @Schema(description = "Client phone number")
