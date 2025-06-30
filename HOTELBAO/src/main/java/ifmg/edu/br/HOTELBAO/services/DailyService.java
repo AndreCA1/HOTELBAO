@@ -1,13 +1,10 @@
 package ifmg.edu.br.HOTELBAO.services;
 
-import ifmg.edu.br.HOTELBAO.dtos.ClientDTO;
 import ifmg.edu.br.HOTELBAO.dtos.DailyDTO;
 import ifmg.edu.br.HOTELBAO.dtos.DailyInsertDTO;
 import ifmg.edu.br.HOTELBAO.entities.Client;
 import ifmg.edu.br.HOTELBAO.entities.Daily;
-import ifmg.edu.br.HOTELBAO.entities.Role;
 import ifmg.edu.br.HOTELBAO.entities.Room;
-import ifmg.edu.br.HOTELBAO.projections.ClientDetailsProjection;
 import ifmg.edu.br.HOTELBAO.projections.DailyDetailsProjection;
 import ifmg.edu.br.HOTELBAO.repository.ClientRepository;
 import ifmg.edu.br.HOTELBAO.repository.DailyRepository;
@@ -24,8 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -59,7 +54,7 @@ public class DailyService {
     public Page<DailyDTO> findByClientId(Long id, Pageable pageable) {
         Page<DailyDetailsProjection> result = dailyRepository.searchDailyByClientId(id, pageable);
 
-        if (result.isEmpty()) throw new ClientException("Não existem estadias cadastradas no sistema!");
+        if (result.isEmpty()) throw new ClientException("O cliente não possui estadias cadastradas no sistema!");
 
         return result.map(p -> {
             Room room = new Room();

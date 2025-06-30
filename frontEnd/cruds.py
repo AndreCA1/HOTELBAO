@@ -47,7 +47,7 @@ def _get_clientes():
         return dados.get("content", [])
 
     except requests.RequestException as e:
-        print("Erro ao buscar clientes:", e)
+        messagebox.showerror(response.json()['error'], response.json()['message'])
         return []
 
 
@@ -94,7 +94,15 @@ def _janela_insercao_alteracao(
     entry_password.insert(0, "")
 
     def ao_confirmar():
-        password = entry_password.get()
+        nome = entry_nome.get().strip()
+        email = entry_email.get().strip()
+        telefone = entry_telefone.get().strip()
+        password = entry_password.get().strip() or telefone  # usa telefone se senha vazia
+
+        # Verifica se todos os campos obrigatórios foram preenchidos
+        if not nome or not email or not telefone:
+            messagebox.showwarning("Aviso", "Preencha todos os campos obrigatórios.", parent=janela)
+            return
         dados = {
             "name": entry_nome.get(),
             "email": entry_email.get(),
@@ -126,9 +134,7 @@ def inserir_cliente(dados, janela_pai):
             "Sucesso", "Cliente inserido com sucesso!", parent=janela_pai
         )
     except requests.RequestException as e:
-        messagebox.showerror(
-            "Erro", f"Erro ao inserir cliente:\n{e}", parent=janela_pai
-        )
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
 def cadastro_cliente(janela_pai):
@@ -149,7 +155,7 @@ def excluir_cliente(cliente_id, janela_pai):
                 "Erro", f"Erro ao excluir: {response.text}", parent=janela_pai
             )
     except requests.RequestException as e:
-        messagebox.showerror("Erro", f"Erro de conexão: {e}", parent=janela_pai)
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
 def excluir_cliente_selecionado(janela_cliente):
@@ -195,7 +201,7 @@ def alterar_cliente(cliente_id, dados, janela_pai):
             "Sucesso", "Cliente alterado com sucesso!", parent=janela_pai
         )
     except requests.RequestException as e:
-        messagebox.showerror("Erro", f"Erro ao alterar cliente: {e}", parent=janela_pai)
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
 def alterar_cliente_selecionado(janela_cliente):
@@ -223,8 +229,6 @@ def alterar_cliente_selecionado(janela_cliente):
                 confirmar=True,
                 acao=alterar_cliente,
             )
-            close_windows(janela_cliente, janela_alt_cliente)
-
     combo.bind("<<ComboboxSelected>>", abrir_janela_edicao)
     kill_windows(janela_cliente, janela_alt_cliente)
 
@@ -269,7 +273,7 @@ def _get_quartos():
         dados = response.json()
         return dados.get("content", [])
     except requests.RequestException as e:
-        print("Erro ao buscar quartos:", e)
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
         return []
 
 
@@ -345,7 +349,7 @@ def inserir_quarto(dados, janela_pai):
             "Sucesso", "Quarto inserido com sucesso!", parent=janela_pai
         )
     except requests.RequestException as e:
-        messagebox.showerror("Erro", f"Erro ao inserir quarto:\n{e}", parent=janela_pai)
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
 def cadastro_quarto(janela_pai):
@@ -366,7 +370,7 @@ def excluir_quarto(quarto_id, janela_pai):
                 "Erro", f"Erro ao excluir: {response.text}", parent=janela_pai
             )
     except requests.RequestException as e:
-        messagebox.showerror("Erro", f"Erro de conexão: {e}", parent=janela_pai)
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
 def excluir_quarto_selecionado(janela_quarto):
@@ -412,7 +416,7 @@ def alterar_quarto(quarto_id, dados, janela_pai):
             "Sucesso", "Quarto alterado com sucesso!", parent=janela_pai
         )
     except requests.RequestException as e:
-        messagebox.showerror("Erro", f"Erro ao alterar quarto: {e}", parent=janela_pai)
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
 def alterar_quarto_selecionado(janela_quarto):
@@ -484,24 +488,23 @@ def _get_estadias():
         response.raise_for_status()
         return response.json().get("content", [])
     except requests.RequestException as e:
-        print("Erro ao buscar estadias:", e)
+        messagebox.showerror(response.json()['error'], response.json()['message'])
         return []
 
 
-def _atualizar_dropdown_estadias(combo, estadias):
-    valores = []
+def _atualizar_dropdown_estadias(combo, estadias, clientes, quartos):
+    clientes_dict = {c["id"]: c["name"] for c in clientes}
+    quartos_dict = {q["id"]: q["description"] for q in quartos}
 
+    opcoes = []
     for e in estadias:
-        cliente = e["client"]
-        quarto = e["room"]
-
-        nome_cliente = cliente["name"] if cliente else f"Cliente {e['client']['id']}"
-        desc_quarto = quarto["description"] if quarto else f"Quarto {e['room']['id']}"
-
-        texto = f"{e['id']} - Cliente - {nome_cliente} | Quarto - {desc_quarto} | {e['dailyDate']}"
-        valores.append(texto)
-
-    combo["values"] = valores
+        cliente_nome = clientes_dict.get(e.get("clientId"), f"(ID {e.get('clientId')})")
+        quarto_desc = e.get("room", {}).get("description", "Quarto desconhecido")
+        data = e.get("dailyDate", "Data desconhecida")
+        opcoes.append(
+            f"{e['id']} - Cliente {cliente_nome} | Quarto {quarto_desc} | {data}"
+        )
+    combo["values"] = opcoes
     combo.set("Selecione uma estadia")
 
 
@@ -520,8 +523,9 @@ def _janela_insercao_alteracao_estadia(
     janela.geometry("400x350")
 
     # Dados padrão (preencher se for alteração)
-    id_cliente_padrao = estadia["client"] if estadia else None
-    id_quarto_padrao = estadia["room"] if estadia else None
+    id_cliente_padrao = estadia.get("clientId") if estadia else None
+    id_quarto_padrao = estadia.get("room", {}).get("id") if estadia else None
+
     data_padrao = (
         estadia.get("date", "") if estadia else datetime.now().strftime("%d/%m/%Y")
     )
@@ -634,9 +638,7 @@ def inserir_estadia(dados, janela_pai):
             "Sucesso", "Estadia inserida com sucesso!", parent=janela_pai
         )
     except requests.RequestException as e:
-        messagebox.showerror(
-            "Erro", f"Erro ao inserir estadia:\n{e}", parent=janela_pai
-        )
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
 def cadastro_estadia(janela_pai):
@@ -680,7 +682,7 @@ def excluir_estadia(estadia_id, janela_pai):
                 "Erro", f"Erro ao excluir: {response.text}", parent=janela_pai
             )
     except requests.RequestException as e:
-        messagebox.showerror("Erro", f"Erro de conexão: {e}", parent=janela_pai)
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
 def excluir_estadia_selecionada(janela_pai):
@@ -695,10 +697,23 @@ def excluir_estadia_selecionada(janela_pai):
     janela.title("Excluir Estadia")
     janela.geometry("800x350")
 
-    texto_estadias = [
-        f"{e['id']} - Cliente {e['client']['name']} | Quarto {e['room']['description']} | {e['dailyDate']}"
-        for e in estadias
-    ]
+    r_clientes = SESSION.get(f"{BASE_URL}/client")
+    if r_clientes.status_code != 200:
+        messagebox.showerror("Erro", "Erro ao buscar clientes", parent=janela_pai)
+        return
+    clientes = r_clientes.json().get("content", [])
+    clientes_dict = {c["id"]: c["name"] for c in clientes}
+
+    # Montar a lista de opções com nome do cliente
+    texto_estadias = []
+    for e in estadias:
+        cliente_nome = clientes_dict.get(e.get("clientId"), f"(ID {e.get('clientId')})")
+        quarto_desc = e.get("room", {}).get("description", "Quarto desconhecido")
+        data = e.get("dailyDate", "Data desconhecida")
+        texto_estadias.append(
+            f"{e['id']} - Cliente {cliente_nome} | Quarto {quarto_desc} | {data}"
+        )
+
     combo = ttk.Combobox(janela, state="readonly", width=180)
     combo["values"] = texto_estadias
     combo.set("Selecione uma estadia")
@@ -728,7 +743,7 @@ def alterar_estadia(estadia_id, dados, janela_pai):
             "Sucesso", "Estadia alterada com sucesso!", parent=janela_pai
         )
     except requests.RequestException as e:
-        messagebox.showerror("Erro", f"Erro ao alterar estadia: {e}", parent=janela_pai)
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
 def alterar_estadia_selecionada(janela_estadia):
@@ -743,7 +758,7 @@ def alterar_estadia_selecionada(janela_estadia):
 
     combo = ttk.Combobox(janela_alt_estadia, state="readonly", width=180)
     combo.pack(pady=10)
-    _atualizar_dropdown_estadias(combo, estadias)
+    _atualizar_dropdown_estadias(combo, estadias, clientes, quartos)
 
     def abrir_janela_edicao(event):
         selecao = combo.get()

@@ -31,7 +31,7 @@ public class InvoiceService {
         if(client.getName() == null || client.getEmail() == null || client.getPhone() == null) throw new ClientException("É obrigatório fornecer todos os dados do cliente!");
 
         Page<DailyDTO> daily = dailyService.findByClientId(clientId, Pageable.unpaged());
-        if(daily.isEmpty()) throw new DailyException("O cliente não possui estadias cadastradas no sistema!");
+
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             Document doc = new Document();
@@ -57,14 +57,14 @@ public class InvoiceService {
             int count = 0;
 
             for (DailyDTO e : daily) {
-                if(e.getRoom().getDescription() == null || e.getRoom().getPrice() == 0.0) continue;
+                if(e.getRoom().getDescription().isBlank() || e.getRoom().getPrice() == 0.0) continue;
                 count++;
                 String linha = String.format("Quarto: %-25s Valor: %.2f", e.getRoom().getDescription(), e.getRoom().getPrice());
                 doc.add(new Paragraph(linha, normal));
                 total += e.getRoom().getPrice();
             }
 
-            if(count == 0) throw new DailyException("É obrigatório informar ao menos uma estadia com valor e descrição!");
+            if(count == 0) throw new DailyException("O cliente deve ter ao menos uma estadia com valor e descrição!");
 
             doc.add(new Paragraph("==========================", bold));
             doc.add(new Paragraph(String.format("Total: R$ %.2f", total), normal));

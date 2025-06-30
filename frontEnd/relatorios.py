@@ -15,7 +15,7 @@ def listar_clientes(janela_pai):
 
         if not clientes:
             messagebox.showinfo(
-                "Clientes", "Nenhum cliente cadastrado!", parent=janela_pai
+                "Clientes", "Nenhum cliente encontrado.", parent=janela_pai
             )
             return
 
@@ -55,7 +55,7 @@ def listar_clientes(janela_pai):
         kill_windows(janela_pai, janela_tabela)
 
     except Exception as e:
-        messagebox.showerror("Erro", str(e), parent=janela_pai)
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
 def listar_quartos(janela_pai):
@@ -66,7 +66,7 @@ def listar_quartos(janela_pai):
             quartos = dados.get("content", [])
             if not quartos:
                 messagebox.showinfo(
-                    "Quartos", "Nenhum quarto cadastrado!", parent=janela_pai
+                    "Quartos", "Nenhum quarto encontrado.", parent=janela_pai
                 )
                 return
 
@@ -112,7 +112,7 @@ def listar_quartos(janela_pai):
         else:
             messagebox.showerror("Erro", "Erro ao listar quartos.", parent=janela_pai)
     except Exception as e:
-        messagebox.showerror("Erro", str(e), parent=janela_pai)
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
 def listar_estadias(janela_pai):
@@ -120,26 +120,26 @@ def listar_estadias(janela_pai):
         # Buscar estadias
         r_estadias = SESSION.get(f"{BASE_URL}/daily")
         if r_estadias.status_code != 200:
-            messagebox.showerror("Erro", "Erro ao listar estadias.", parent=janela_pai)
+            messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
             return
         estadias = r_estadias.json().get("content", [])
         if not estadias:
             messagebox.showinfo(
-                "Estadias", "Nenhuma estadia Cadastrada", parent=janela_pai
+                "Estadias", "Nenhuma estadia encontrada.", parent=janela_pai
             )
             return
 
         # Buscar clientes
         r_clientes = SESSION.get(f"{BASE_URL}/client")
         if r_clientes.status_code != 200:
-            messagebox.showerror("Erro", "Erro ao buscar clientes.", parent=janela_pai)
+            messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
             return
         clientes = r_clientes.json().get("content", [])
 
         # Buscar quartos
         r_quartos = SESSION.get(f"{BASE_URL}/room")
         if r_quartos.status_code != 200:
-            messagebox.showerror("Erro", "Erro ao buscar quartos.", parent=janela_pai)
+            messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
             return
         quartos = r_quartos.json().get("content", [])
 
@@ -169,12 +169,11 @@ def listar_estadias(janela_pai):
         tree.column("Data", anchor="center")
 
         for est in estadias:
-            nome_cliente = clientes_dict.get(
-                est["client"]["id"], f"(ID {est['client']['id']})"
-            )
-            descricao_quarto = quartos_dict.get(
-                est["room"]["id"], f"(ID {est['room']['id']})"
-            )
+            cliente_id = est.get("clientId")
+            nome_cliente = clientes_dict.get(cliente_id, f"(ID {cliente_id})")
+
+            quarto = est.get("room", {})
+            descricao_quarto = quartos_dict.get(quarto.get("id"), f"(ID {quarto.get('id')})")
             tree.insert(
                 "",
                 "end",
@@ -189,7 +188,7 @@ def listar_estadias(janela_pai):
         kill_windows(janela_pai, janela)
 
     except Exception as e:
-        messagebox.showerror("Erro", str(e), parent=janela_pai)
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
 def _get_estadias_cliente(id):
@@ -218,6 +217,7 @@ def export_nota_fiscal(janela_pai):
     _atualizar_dropdown(combo, clientes)
 
     def escolha_cliente():
+        global response
         nome = combo.get()
         if nome == "Selecione um cliente" or not nome:
             messagebox.showwarning(
@@ -240,22 +240,14 @@ def export_nota_fiscal(janela_pai):
                         f.write(chunk)
 
                 messagebox.showinfo(
-                    "Sucesso",
-                    f"Nota fiscal salva como: {nome_arquivo}",
-                    parent=janela_nota_fiscal,
+                    "Sucesso", f"Nota fiscal salva como: {nome_arquivo}", parent=janela_nota_fiscal
                 )
-                janela_nota_fiscal.destroy()
-
+                close_windows(janela_pai, janela_nota_fiscal)
             except requests.RequestException as e:
-                messagebox.showerror(
-                    "Erro",
-                    f"Erro ao baixar nota fiscal:\n{e}",
-                    parent=janela_nota_fiscal,
-                )
+                messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_nota_fiscal)
 
     tk.Button(janela_nota_fiscal, text="⚙ GERAR", command=escolha_cliente).pack(pady=10)
     kill_windows(janela_pai, janela_nota_fiscal)
-
 
 def gerador_relatorio(janela_pai, cliente, estadias):
     janela_pai.withdraw()
