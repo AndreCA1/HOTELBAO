@@ -5,6 +5,7 @@ import requests
 
 from cruds import _get_clientes, _atualizar_dropdown
 
+
 def listar_clientes(janela_pai):
     try:
         r = SESSION.get(f"{BASE_URL}/client")
@@ -14,7 +15,7 @@ def listar_clientes(janela_pai):
 
         if not clientes:
             messagebox.showinfo(
-                "Clientes", "Nenhum cliente encontrado.", parent=janela_pai
+                "Clientes", "Nenhum cliente cadastrado!", parent=janela_pai
             )
             return
 
@@ -65,7 +66,7 @@ def listar_quartos(janela_pai):
             quartos = dados.get("content", [])
             if not quartos:
                 messagebox.showinfo(
-                    "Quartos", "Nenhum quarto encontrado.", parent=janela_pai
+                    "Quartos", "Nenhum quarto cadastrado!", parent=janela_pai
                 )
                 return
 
@@ -124,7 +125,7 @@ def listar_estadias(janela_pai):
         estadias = r_estadias.json().get("content", [])
         if not estadias:
             messagebox.showinfo(
-                "Estadias", "Nenhuma estadia encontrada.", parent=janela_pai
+                "Estadias", "Nenhuma estadia Cadastrada", parent=janela_pai
             )
             return
 
@@ -239,15 +240,22 @@ def export_nota_fiscal(janela_pai):
                         f.write(chunk)
 
                 messagebox.showinfo(
-                    "Sucesso", f"Nota fiscal salva como: {nome_arquivo}", parent=janela_nota_fiscal
+                    "Sucesso",
+                    f"Nota fiscal salva como: {nome_arquivo}",
+                    parent=janela_nota_fiscal,
                 )
                 janela_nota_fiscal.destroy()
 
             except requests.RequestException as e:
-                messagebox.showerror("Erro", f"Erro ao baixar nota fiscal:\n{e}", parent=janela_nota_fiscal)
+                messagebox.showerror(
+                    "Erro",
+                    f"Erro ao baixar nota fiscal:\n{e}",
+                    parent=janela_nota_fiscal,
+                )
 
     tk.Button(janela_nota_fiscal, text="⚙ GERAR", command=escolha_cliente).pack(pady=10)
     kill_windows(janela_pai, janela_nota_fiscal)
+
 
 def gerador_relatorio(janela_pai, cliente, estadias):
     janela_pai.withdraw()

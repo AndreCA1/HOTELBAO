@@ -3,6 +3,7 @@ import jwt
 
 from tkinter import messagebox, simpledialog
 from cruds import (
+    cadastro_cliente,
     cadastro_estadia_cliente_pre_select,
     menu_cliente,
     menu_estadia,
@@ -80,7 +81,6 @@ def menu_principal(root, authorities, cliente):
         ).pack(pady=5)
         tk.Button(
             menus,
-            #TODO: adicionar confirmação da listagem e caso não tenha quarto, clientes ou estadias deve mostrar "Não existem ... cadastrados no sistema"
             text="📋 Listar dados dos clientes",
             command=lambda: listar_clientes(menus),
         ).pack(pady=5)
@@ -111,8 +111,6 @@ def menu_principal(root, authorities, cliente):
             command=lambda: relatorios(menus),
         ).pack(pady=5)
     else:
-        # TODO: adicionar botão da função signup
-        # TODO: Adicionar botão da função recuperar senha
         tk.Button(
             menus,
             text="🕒 Reservar",
@@ -158,6 +156,37 @@ def login(email, senha, janela_pai):
         messagebox.showerror("Erro", str(e), parent=janela_pai)
 
 
+def reset_senha(email, janela_pai):
+    try:
+        url = f"{BASE_URL}/email"
+
+        # TODO: verificar se a payload será enviada ou o email será passado via URL como foi no pesquisar cliente por email
+        data = {"body": "", "to": email, "subject": ""}
+
+        # Envia POST com basic auth + body
+        r = SESSION.post(url, data=data)
+
+        dados = r.json()
+        # TODO: verificar se status retornado é OK (200) ou noContent(204)
+        if r.status_code == 204:
+            messagebox.showinfo(
+                "Email enviado", "Email enviado para:" + email, parent=janela_pai
+            )
+            return None
+        else:
+            erro = (
+                dados.get("error_description")
+                or dados.get("message")
+                or "Erro desconhecido"
+            )
+            messagebox.showerror("Erro", erro, parent=janela_pai)
+            return None
+
+    except Exception as e:
+        messagebox.showerror("Erro", str(e), parent=janela_pai)
+    pass
+
+
 def menu_login(root):
     root.withdraw()
     janela_login = tk.Toplevel(root)
@@ -194,10 +223,24 @@ def menu_login(root):
                 title="Erro", message="Preencha corretamente ambos os campos!"
             )
 
+    def esqueci_senha():
+        email = entry_email.get()
+        if email:
+            reset_senha(email, janela_login)
+        else:
+            messagebox.showwarning(
+                title="Erro", message="Preencha corretamente o EMAIL!"
+            )
+
     tk.Button(
         janela_login,
         text="🔐 Login",
         command=tentar_login,
+    ).pack(pady=20)
+    tk.Button(
+        janela_login,
+        text="😓 Esqueci a senha",
+        command=esqueci_senha,
     ).pack(pady=20)
     tk.Button(
         janela_login, text="❌ Sair", command=lambda: close_windows(root, janela_login)
@@ -212,10 +255,15 @@ tk.Button(
     root,
     text="🔐 Logar",
     command=lambda: menu_login(root),
-).pack(pady=20)
+).pack(pady=10)
+tk.Button(
+    root,
+    text="✍️ Signup",
+    command=lambda: cadastro_cliente(root),
+).pack(pady=10)
 tk.Button(
     root, text="📋 Listar dados dos quartos", command=lambda: listar_quartos(root)
-).pack(pady=5)
+).pack(pady=10)
 
-tk.Button(root, text="❌ Sair", command=root.destroy).pack(pady=20)
+tk.Button(root, text="❌ Sair", command=root.destroy).pack(pady=10)
 root.mainloop()
