@@ -3,7 +3,7 @@ import jwt
 
 from tkinter import messagebox, simpledialog
 from cruds import (
-    cadastro_cliente,
+    signUp_cliente,
     cadastro_estadia_cliente_pre_select,
     menu_cliente,
     menu_estadia,
@@ -137,6 +137,7 @@ def login(email, senha, janela_pai):
 
         # Envia POST com basic auth + body
         r = SESSION.post(url, data=data, auth=(CLIENT_ID, CLIENT_PASS))
+        r.raise_for_status()
 
         dados = r.json()
 
@@ -155,37 +156,66 @@ def login(email, senha, janela_pai):
     except Exception as e:
         messagebox.showerror("Erro", str(e), parent=janela_pai)
 
+def abrir_janela_codigo(janela_pai):
+    janela_pai.withdraw()
+    janela_codigo = tk.Toplevel()
+    janela_codigo.title("Verificar Código")
+    janela_codigo.geometry("300x250")
+
+    tk.Label(janela_codigo, text="Digite o código de 6 dígitos:").pack(pady=10)
+    entrada = tk.Entry(janela_codigo, font=("Arial", 14), justify="center")
+    entrada.pack(pady=5)
+
+    tk.Label(janela_codigo, text="Nova senha:").pack(pady=5)
+    entry_senha = tk.Entry(janela_codigo)
+    entry_senha.pack()
+
+    def verificar_codigo():
+        codigo = entrada.get().strip()
+        if not codigo.isdigit() or len(codigo) != 6:
+            messagebox.showwarning("Código inválido", "Digite um código válido de 6 dígitos.")
+            return
+        try:
+            url = f"{BASE_URL}/auth/reset-password"
+            data = {
+                    "newPassword": entry_senha.get(),
+                    "token": entrada.get()
+                }
+
+            r = SESSION.post(url, json=data)
+            r.raise_for_status()
+
+            if r.status_code == 204:
+                messagebox.showinfo(
+                    "Senha alterada", "Sua senha foi alterada com sucesso!", parent=janela_pai
+                )
+                close_windows(janela_pai, janela_codigo)
+
+        except Exception as e:
+            messagebox.showerror(r.json()['error'], r.json()['message'], parent=janela_pai)
+
+    kill_windows(janela_pai, janela_codigo)
+
+    tk.Button(janela_codigo, text="Alterar🌱", command=verificar_codigo).pack(pady=10)
 
 def reset_senha(email, janela_pai):
     try:
-        url = f"{BASE_URL}/email"
+        url = f"{BASE_URL}/auth/recover-token"
 
-        # TODO: verificar se a payload será enviada ou o email será passado via URL como foi no pesquisar cliente por email
-        data = {"body": "", "to": email, "subject": ""}
+        data = {"email": email}
 
         # Envia POST com basic auth + body
-        r = SESSION.post(url, data=data)
+        r = SESSION.post(url, json=data)
+        r.raise_for_status()
 
-        dados = r.json()
-        # TODO: verificar se status retornado é OK (200) ou noContent(204)
-        if r.status_code == 204:
+        if r.status_code == 200:
             messagebox.showinfo(
                 "Email enviado", "Email enviado para:" + email, parent=janela_pai
             )
-            return None
-        else:
-            erro = (
-                dados.get("error_description")
-                or dados.get("message")
-                or "Erro desconhecido"
-            )
-            messagebox.showerror("Erro", erro, parent=janela_pai)
-            return None
+            abrir_janela_codigo(janela_pai)
 
     except Exception as e:
-        messagebox.showerror("Erro", str(e), parent=janela_pai)
-    pass
-
+        messagebox.showerror(r.json()['error'], r.json()['message'], parent=janela_pai)
 
 def menu_login(root):
     root.withdraw()
@@ -258,8 +288,8 @@ tk.Button(
 ).pack(pady=10)
 tk.Button(
     root,
-    text="✍️ Signup",
-    command=lambda: cadastro_cliente(root),
+    text="✍️Signup",
+    command=lambda: signUp_cliente(root),
 ).pack(pady=10)
 tk.Button(
     root, text="📋 Listar dados dos quartos", command=lambda: listar_quartos(root)

@@ -136,10 +136,25 @@ def inserir_cliente(dados, janela_pai):
     except requests.RequestException as e:
         messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
+def signUp_client(dados, janela_pai):
+    try:
+        response = SESSION.post(f"{BASE_URL}/client/signup", json=dados)
+        response.raise_for_status()
+        messagebox.showinfo(
+            "Sucesso", "Conta criada com sucesso!", parent=janela_pai
+        )
+    except requests.RequestException as e:
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
+
 
 def cadastro_cliente(janela_pai):
     _janela_insercao_alteracao(
         janela_pai, titulo="Inserir Cliente", confirmar=False, acao=inserir_cliente
+    )
+
+def signUp_cliente(janela_pai):
+    _janela_insercao_alteracao(
+        janela_pai, titulo="Inserir Cliente", confirmar=False, acao=signUp_client
     )
 
 
@@ -272,8 +287,8 @@ def _get_quartos():
         response.raise_for_status()
         dados = response.json()
         return dados.get("content", [])
-    except requests.RequestException as e:
-        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
+    except Exception:
+        messagebox.showerror(response.json()['error'], response.json()['message'])
         return []
 
 

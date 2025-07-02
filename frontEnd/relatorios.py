@@ -191,7 +191,8 @@ def listar_estadias(janela_pai):
         messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
 
-def _get_estadias_cliente(id):
+def _get_estadias_cliente(id, janela_pai):
+    global response
     try:
         response = SESSION.get(f"{BASE_URL}/daily/client/{id}")
 
@@ -199,8 +200,8 @@ def _get_estadias_cliente(id):
         dados = response.json()
         return dados.get("content", [])
 
-    except requests.RequestException as e:
-        print("Erro ao buscar clientes:", e)
+    except Exception as e:
+        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
         return []
 
 
@@ -249,7 +250,7 @@ def export_nota_fiscal(janela_pai):
     tk.Button(janela_nota_fiscal, text="⚙ GERAR", command=escolha_cliente).pack(pady=10)
     kill_windows(janela_pai, janela_nota_fiscal)
 
-def gerador_relatorio(janela_pai, cliente, estadias):
+def gerador_relatorio(janela_pai, cliente):
     janela_pai.withdraw()
     janela_relatorios = tk.Toplevel(janela_pai)
     janela_relatorios.title("Escolha o relatório")
@@ -257,28 +258,76 @@ def gerador_relatorio(janela_pai, cliente, estadias):
     janela_relatorios.geometry("300x200")
 
     def menor_estadia():
-        menor = min(estadias, key=lambda e: e["room"]["price"])
-        messagebox.showinfo(
-            title="Estadia de menor valor",
-            message=f"Estadia de menor valor\nEstadia: {menor['room']['description']} | Valor: R${menor['room']['price']}",
-            parent=janela_relatorios,
+
+        confirmado = messagebox.askyesno(
+            title="Confirmar geração",
+            message="Deseja gerar este relatório?",
+            parent=janela_relatorios
         )
+        if not confirmado:
+            return
+
+        global response
+        try:
+            response = SESSION.get(f"{BASE_URL}/daily/client-cheaper/{cliente['id']}")
+
+            response.raise_for_status()
+            dados = response.json()
+
+            messagebox.showinfo(
+                title="Estadia de maior valor",
+                message=f"Estadia de maior valor\nEstadia: {dados['room']['description']} | Valor: R${dados['room']['price']}",
+                parent=janela_relatorios,
+            )
+        except Exception as e:
+            messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
+            return []
 
     def maior_estadia():
-        maior = max(estadias, key=lambda e: e["room"]["price"])
-        messagebox.showinfo(
-            title="Estadia de maior valor",
-            message=f"Estadia de maior valor\nEstadia: {maior['room']['description']} | Valor: R${maior['room']['price']}",
-            parent=janela_relatorios,
+
+        confirmado = messagebox.askyesno(
+            title="Confirmar geração",
+            message="Deseja gerar este relatório?",
+            parent=janela_relatorios
         )
+        if not confirmado:
+            return
+
+        global response
+        try:
+            response = SESSION.get(f"{BASE_URL}/daily/client-expensive/{cliente['id']}")
+
+            response.raise_for_status()
+            dados = response.json()
+
+            messagebox.showinfo(
+                title="Estadia de maior valor",
+                message=f"Estadia de maior valor\nEstadia: {dados['room']['description']} | Valor: R${dados['room']['price']}",
+                parent=janela_relatorios,
+            )
+        except Exception as e:
+            messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
+            return []
 
     def somatorio_etadias():
-        valor = sum(e["room"]["price"] for e in estadias)
-        messagebox.showinfo(
-            title="Valor total de estadias do cliente",
-            message=f"Valor total de estadias do cliente: R${valor}",
-            parent=janela_relatorios,
+
+        confirmado = messagebox.askyesno(
+            title="Confirmar geração",
+            message="Deseja gerar este relatório?",
+            parent=janela_relatorios
         )
+        if not confirmado:
+            return
+
+        estadias = _get_estadias_cliente(cliente["id"], janela_pai)
+
+        if estadias:
+            valor = sum(e["room"]["price"] for e in estadias)
+            messagebox.showinfo(
+                title="Valor total de estadias do cliente",
+                message=f"Valor total de estadias do cliente: R${valor}",
+                parent=janela_relatorios,
+            )
 
     tk.Button(
         janela_relatorios,
@@ -325,19 +374,7 @@ def relatorios(janela_pai):
 
         cliente = next((c for c in clientes if c["name"] == nome), None)
         if cliente:
-            estadias = _get_estadias_cliente(cliente["id"])
-            if estadias:
-                gerador_relatorio(
-                    janela_relatorios,
-                    cliente,
-                    estadias,
-                )
-            else:
-                messagebox.showerror(
-                    "Erro",
-                    f"Erro ao buscar as estadias do cliente: {cliente['name']}",
-                    parent=janela_relatorios,
-                )
+            gerador_relatorio(janela_relatorios,cliente)
 
     tk.Button(janela_relatorios, text="⚙ GERAR", command=escolha_cliente).pack(pady=10)
     tk.Button(
@@ -349,7 +386,7 @@ def relatorios(janela_pai):
 
 
 def relatorio_cliente_pre_select(janela_pai, cliente):
-    estadias = _get_estadias_cliente(cliente["id"])
+    estadias = _get_estadias_cliente(cliente["id"], janela_pai)
     if estadias:
         gerador_relatorio(
             janela_pai,
