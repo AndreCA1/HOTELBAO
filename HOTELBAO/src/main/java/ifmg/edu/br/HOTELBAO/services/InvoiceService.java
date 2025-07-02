@@ -30,7 +30,7 @@ public class InvoiceService {
         ClientDTO client = clientService.findById(clientId);
         if(client.getName() == null || client.getEmail() == null || client.getPhone() == null) throw new ClientException("É obrigatório fornecer todos os dados do cliente!");
 
-        Page<DailyDTO> daily = dailyService.findByClientId(clientId, Pageable.unpaged());
+        Page<DailyDTO> daily = dailyService.searchByClientId(clientId, Pageable.unpaged());
 
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

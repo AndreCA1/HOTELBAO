@@ -55,6 +55,7 @@ public class RoomResource {
         return ResponseEntity.ok(entity);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @PostMapping(produces = "application/json")
     @Operation(
             description = "Create a new room",
@@ -76,6 +77,7 @@ public class RoomResource {
         return ResponseEntity.created(uri).body(entity);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @PutMapping(value = "/{id}", produces = "application/json")
     @Operation(
             description = "Update room",
@@ -92,6 +94,7 @@ public class RoomResource {
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @DeleteMapping(value = "/{id}")
     @Operation(
             description = "Delete room",

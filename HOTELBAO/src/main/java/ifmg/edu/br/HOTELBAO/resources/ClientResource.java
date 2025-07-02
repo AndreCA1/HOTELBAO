@@ -75,6 +75,7 @@ public class ClientResource {
         return ResponseEntity.ok(entity);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @PostMapping(produces = "application/json")
     @Operation(
             description = "Create a new client",
@@ -117,7 +118,7 @@ public class ClientResource {
         dto = clientService.update(id, dto);
         return ResponseEntity.ok(dto);
     }
-
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENT')")
     @DeleteMapping(value = "/{id}")
     @Operation(
             description = "Delete client",

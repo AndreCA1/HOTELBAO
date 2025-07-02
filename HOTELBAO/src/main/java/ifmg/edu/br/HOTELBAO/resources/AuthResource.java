@@ -23,12 +23,12 @@ public class AuthResource {
     @PostMapping(value = "recover-token")
     public ResponseEntity<Void> createRecoverToken(@Valid @RequestBody ResquestTokenDTO dto){
         authService.createRecoverToken(dto);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "new-password")
-    public ResponseEntity<Void> saveNewPassword(@Valid @RequestBody NewPasswordDTO dto){
-        authService.saveNewPassword(dto);
+    @PostMapping(value = "reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody NewPasswordDTO dto) {
+        authService.resetPassword(dto); // valida o token e redefine a senha
         return ResponseEntity.noContent().build();
     }
 }

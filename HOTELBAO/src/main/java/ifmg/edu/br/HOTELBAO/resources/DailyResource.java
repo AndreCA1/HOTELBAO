@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -24,6 +25,7 @@ public class DailyResource {
     @Autowired
     DailyService dailyService;
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping(produces = "application/json")
     @Operation(
             description = "Find all Daily",
@@ -39,6 +41,7 @@ public class DailyResource {
         return ResponseEntity.ok(entitys);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping(value = "/{id}", produces = "application/json")
     @Operation(
             description = "Find daily by ID",
@@ -55,6 +58,7 @@ public class DailyResource {
         return ResponseEntity.ok(entity);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENT')")
     @GetMapping(value = "/client/{id}", produces = "application/json")
     @Operation(
             description = "Find daily by Client",
@@ -67,10 +71,45 @@ public class DailyResource {
                     @ApiResponse(description = "NotFound", responseCode = "404")
             })
     public ResponseEntity<Page<DailyDTO>> findByClientId(@PathVariable Long id, Pageable pageable) {
-        Page<DailyDTO> entitys = dailyService.findByClientId(id, pageable);
+        Page<DailyDTO> entitys = dailyService.searchByClientId(id, pageable);
         return ResponseEntity.ok(entitys);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENT')")
+    @GetMapping(value = "/client-expensive/{id}", produces = "application/json")
+    @Operation(
+            description = "Find daily by Client",
+            summary = "Find daily by Client",
+            responses = {
+                    @ApiResponse(description = "Ok", responseCode = "200"),
+                    @ApiResponse(description = "Bad request", responseCode = "400"),
+                    @ApiResponse(description = "UnAuthorized", responseCode = "401"),
+                    @ApiResponse(description = "Forbidden", responseCode = "403"),
+                    @ApiResponse(description = "NotFound", responseCode = "404")
+            })
+    public ResponseEntity<DailyDTO> findMoreExpensiveByClientId(@PathVariable Long id) {
+        DailyDTO entity = dailyService.searchMoreExpensiveByClientId(id);
+        return ResponseEntity.ok(entity);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENT')")
+    @GetMapping(value = "/client-cheaper/{id}", produces = "application/json")
+    @Operation(
+            description = "Find daily by Client",
+            summary = "Find daily by Client",
+            responses = {
+                    @ApiResponse(description = "Ok", responseCode = "200"),
+                    @ApiResponse(description = "Bad request", responseCode = "400"),
+                    @ApiResponse(description = "UnAuthorized", responseCode = "401"),
+                    @ApiResponse(description = "Forbidden", responseCode = "403"),
+                    @ApiResponse(description = "NotFound", responseCode = "404")
+            })
+    public ResponseEntity<DailyDTO> findCheaperByClientId(@PathVariable Long id) {
+        DailyDTO entity = dailyService.searchCheaperByClientId(id);
+        return ResponseEntity.ok(entity);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENT')")
     @PostMapping(produces = "application/json")
     @Operation(
             description = "Create a new daily",
@@ -92,6 +131,7 @@ public class DailyResource {
         return ResponseEntity.created(uri).body(entity);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @PutMapping(value = "/{id}", produces = "application/json")
     @Operation(
             description = "Update daily",
@@ -108,6 +148,7 @@ public class DailyResource {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @DeleteMapping(value = "/{id}")
     @Operation(
             description = "Delete daily",

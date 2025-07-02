@@ -72,7 +72,10 @@ public class ClientService implements UserDetailsService {
         Client entity = new Client();
 
         copyDtoToEntity(dto, entity);
-        entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+        //Seta o numero como senha base caso tenha
+        if(entity.getPassword() == null || entity.getPassword().isEmpty() || entity.getPassword().isBlank() ) entity.setPassword(passwordEncoder.encode(entity.getPhone()));
+        else entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+
         entity.getRoles().clear();
         entity.addRole(roleRepository.getReferenceById(2L));
         Client novo = clientRepository.save(entity);
@@ -84,7 +87,10 @@ public class ClientService implements UserDetailsService {
     public ClientDTO signup(ClientInsertDTO dto) {
         Client entity = new Client();
         copyDtoToEntity(dto, entity);
-        entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+        //Seta o numero como senha base caso tenha
+        if(entity.getPassword() == null || entity.getPassword().isEmpty() || entity.getPassword().isBlank() ) entity.setPassword(passwordEncoder.encode(entity.getPhone()));
+        else entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+
         entity.getRoles().clear();
         entity.addRole(roleRepository.getReferenceById(2L));
         entity = clientRepository.save(entity);

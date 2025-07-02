@@ -51,7 +51,7 @@ public class DailyService {
     }
 
     @Transactional(readOnly = true)
-    public Page<DailyDTO> findByClientId(Long id, Pageable pageable) {
+    public Page<DailyDTO> searchByClientId(Long id, Pageable pageable) {
         Page<DailyDetailsProjection> result = dailyRepository.searchDailyByClientId(id, pageable);
 
         if (result.isEmpty()) throw new ClientException("O cliente não possui estadias cadastradas no sistema!");
@@ -70,6 +70,28 @@ public class DailyService {
                     room
             );
         });
+    }
+
+    @Transactional(readOnly = true)
+    public DailyDTO searchMoreExpensiveByClientId(Long id) {
+        DailyDetailsProjection result = dailyRepository.searchMoreExpensiveDailyByClientId(id);
+
+        if (result == null) throw new ClientException("O cliente não possui estadias cadastradas no sistema!");
+
+        Room room = new Room(result.getRoom_id(), result.getRoom_description(), result.getRoom_price(), result.getRoom_image_url());
+
+        return new DailyDTO(result.getId(), result.getDaily_date(), result.getClient_id(), room);
+    }
+
+    @Transactional(readOnly = true)
+    public DailyDTO searchCheaperByClientId(Long id) {
+        DailyDetailsProjection result = dailyRepository.searchCheaperDailyByClientId(id);
+
+        if (result == null) throw new ClientException("O cliente não possui estadias cadastradas no sistema!");
+
+        Room room = new Room(result.getRoom_id(), result.getRoom_description(), result.getRoom_price(), result.getRoom_image_url());
+
+        return new DailyDTO(result.getId(), result.getDaily_date(), result.getClient_id(), room);
     }
 
 

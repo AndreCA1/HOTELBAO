@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -48,7 +49,7 @@ public class AuthService {
 
         if (entity == null) throw new ResourceNotFound("Email not found!");
         //gera token
-        String token = UUID.randomUUID().toString();
+        String token = String.format("%06d", new Random().nextInt(1_000_000));
 
         //inserir no BD
         PasswordRecover passwordRecover = new PasswordRecover();
@@ -58,15 +59,15 @@ public class AuthService {
 
         passwordRecoverRepository.save(passwordRecover);
 
-        String body = "Acesse o link para definir uma nova senha: " +
-                "\nVálido por " + tokenMinutes + " minutos" +
-                "\n\n" + uri + token;
+        String body = "Use o código abaixo para redefinir sua senha:" +
+                "\n\nCódigo: " + token +
+                "\nVálido por " + tokenMinutes + " minutos.";
         EmailDTO email = new EmailDTO(entity.getEmail(), "Password Recover", body);
         emailService.sendEmail(email);
     }
 
     @Transactional
-    public void saveNewPassword(NewPasswordDTO dto) {
+    public void resetPassword(NewPasswordDTO dto) {
         PasswordRecover recover = passwordRecoverRepository.searchValidToken(dto.getToken(), Instant.now());
 
         if(recover == null){
@@ -77,4 +78,7 @@ public class AuthService {
 
         entity.setPassword(passwordEncoder.encode(dto.getNewPassword()));
     }
+
+
+
 }

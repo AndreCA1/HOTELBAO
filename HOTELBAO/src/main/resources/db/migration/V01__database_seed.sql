@@ -36,7 +36,8 @@ INSERT INTO client (active, name, email, password, phone) VALUES
 (true, 'Carlos Lima', 'carlos.lima@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', '31999990002'),
 (true, 'Marina Alves', 'marina.alves@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', '31999990003'),
 (true, 'João Pedro', 'joao.pedro@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', '31999990004'),
-(true, 'Beatriz Silva', 'beatriz.silva@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', '31999990005');
+(true, 'Beatriz Silva', 'beatriz.silva@email.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', '31999990005'),
+(true, 'Andre Carvalho', 'pathooficial@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', '37988550005');
 
 -- Inserção de quartos
 INSERT INTO room (active, description, price, image_url) VALUES

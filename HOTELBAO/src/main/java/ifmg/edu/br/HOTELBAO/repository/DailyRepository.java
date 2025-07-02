@@ -39,4 +39,40 @@ public interface DailyRepository extends JpaRepository<Daily, Long> {
             countQuery = "SELECT COUNT(*) FROM daily WHERE client_id = :client_id"
     )
     Page<DailyDetailsProjection> searchDailyByClientId(Long client_id, Pageable pageable);
+
+    @Query(nativeQuery = true,
+            value = """
+                        SELECT d.id AS id,
+                              d.daily_date AS daily_date,
+                              d.client_id AS client_id,
+                              r.id AS room_id,
+                              r.description AS room_description,
+                              r.price AS room_price,
+                              r.image_url AS room_image_url
+                        FROM daily d
+                            INNER JOIN room r ON d.room_id = r.id
+                                where d.client_id = :id
+                                    ORDER BY r.price DESC
+                                    LIMIT 1;
+            """
+    )
+    DailyDetailsProjection searchMoreExpensiveDailyByClientId(Long id);
+
+    @Query(nativeQuery = true,
+            value = """
+                        SELECT d.id AS id,
+                              d.daily_date AS daily_date,
+                              d.client_id AS client_id,
+                              r.id AS room_id,
+                              r.description AS room_description,
+                              r.price AS room_price,
+                              r.image_url AS room_image_url
+                        FROM daily d
+                            INNER JOIN room r ON d.room_id = r.id
+                                where d.client_id = :id
+                                    ORDER BY r.price ASC
+                                    LIMIT 1;
+            """
+    )
+    DailyDetailsProjection searchCheaperDailyByClientId(Long id);
 }
