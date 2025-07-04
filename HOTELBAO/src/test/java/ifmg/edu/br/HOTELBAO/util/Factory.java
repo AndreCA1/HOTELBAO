@@ -1,7 +1,6 @@
 package ifmg.edu.br.HOTELBAO.util;
 
 import ifmg.edu.br.HOTELBAO.dtos.*;
-import ifmg.edu.br.HOTELBAO.entities.Room;
 
 import java.time.Instant;
 import java.util.Date;
@@ -39,5 +38,18 @@ public class Factory {
         email.setTo("nobex27770@exitbit.com");
         email.setSubject("Test email");
         return email;
+    }
+
+    public static RequestTokenDTO createRequestTokenDTO(String email){
+        RequestTokenDTO token = new RequestTokenDTO();
+        token.setEmail(email);
+        return token;
+    }
+
+    public static NewPasswordDTO createNewPasswordDTO(String token){
+        NewPasswordDTO newPassword = new NewPasswordDTO();
+        newPassword.setToken(token);
+        newPassword.setNewPassword("password");
+        return newPassword;
     }
 }

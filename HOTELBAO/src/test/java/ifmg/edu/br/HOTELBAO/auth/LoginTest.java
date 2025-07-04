@@ -1,6 +1,13 @@
 package ifmg.edu.br.HOTELBAO.auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import ifmg.edu.br.HOTELBAO.dtos.NewPasswordDTO;
+import ifmg.edu.br.HOTELBAO.dtos.RequestTokenDTO;
+import ifmg.edu.br.HOTELBAO.entities.PasswordRecover;
+import ifmg.edu.br.HOTELBAO.services.AuthService;
+import ifmg.edu.br.HOTELBAO.util.Factory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -18,13 +26,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class LoginTest {
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private AuthService authService;
+
     @Value(value = "${security.client-id}")
     String clientId;
     @Value(value = "${security.client-secret}")
     String clientSecret;
+
+
+    private String existingEmail;
+    private String nonExistingEmail;
+
+    @BeforeEach
+    void setUp() {
+        existingEmail = "ana.souza@email.com";
+        nonExistingEmail = "email@email.com";
+    }
 
     @Test
     void adminLoginShouldReturnValidToken() throws Exception {
@@ -78,5 +104,60 @@ public class LoginTest {
                 .param("username", "email@email.com")
                 .param("password", "123456"));
         result.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createRecoverTokenShouldReturnAValidTokenIfEmailIsValid() throws Exception {
+        RequestTokenDTO email = Factory.createRequestTokenDTO(existingEmail);
+        String dtoJson = objectMapper.writeValueAsString(email);
+        ResultActions result = mockMvc.perform(post("/auth/recover-token")
+                .content(dtoJson)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    void createRecoverTokenShouldRaiseErrorIfAInvalidEmailIsProvided() throws Exception {
+        RequestTokenDTO email = Factory.createRequestTokenDTO(nonExistingEmail);
+        String dtoJson = objectMapper.writeValueAsString(email);
+        ResultActions result = mockMvc.perform(post("/auth/recover-token")
+                .content(dtoJson)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+
+        result.andExpect(status().isNotFound());
+        result.andExpect(jsonPath("$.error").value("Resource not found"));
+        result.andExpect(jsonPath("$.message").value("Email not found!"));
+    }
+
+    @Test
+    void recoverPasswordShouldChangeAPasswordIfTokenIsValid() throws Exception {
+        PasswordRecover passwordRecover = authService.saveRecoverToken(existingEmail);
+        NewPasswordDTO password = Factory.createNewPasswordDTO(passwordRecover.getToken());
+        String dtoJson = objectMapper.writeValueAsString(password);
+        ResultActions result = mockMvc.perform(post("/auth/reset-password")
+                .content(dtoJson)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isNoContent());
+    }
+
+    @Test
+    void recoverPasswordShouldNotChangeAPasswordIfTokenIsInvalid() throws Exception {
+        String token = "";
+        NewPasswordDTO password = Factory.createNewPasswordDTO(token);
+        String dtoJson = objectMapper.writeValueAsString(password);
+        ResultActions result = mockMvc.perform(post("/auth/reset-password")
+                .content(dtoJson)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isNotFound());
+        result.andExpect(jsonPath("$.error").value("Resource not found"));
+        result.andExpect(jsonPath("$.message").value("Token not found"));
     }
 }
