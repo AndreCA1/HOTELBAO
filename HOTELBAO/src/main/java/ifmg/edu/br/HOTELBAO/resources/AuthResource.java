@@ -1,7 +1,7 @@
 package ifmg.edu.br.HOTELBAO.resources;
 
 import ifmg.edu.br.HOTELBAO.dtos.NewPasswordDTO;
-import ifmg.edu.br.HOTELBAO.dtos.ResquestTokenDTO;
+import ifmg.edu.br.HOTELBAO.dtos.RequestTokenDTO;
 import ifmg.edu.br.HOTELBAO.services.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,7 +21,7 @@ public class AuthResource {
     private AuthService authService;
 
     @PostMapping(value = "recover-token")
-    public ResponseEntity<Void> createRecoverToken(@Valid @RequestBody ResquestTokenDTO dto){
+    public ResponseEntity<Void> createRecoverToken(@Valid @RequestBody RequestTokenDTO dto){
         authService.createRecoverToken(dto);
         return ResponseEntity.ok().build();
     }

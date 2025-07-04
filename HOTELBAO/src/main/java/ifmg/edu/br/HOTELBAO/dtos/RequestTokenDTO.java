@@ -3,15 +3,15 @@ package ifmg.edu.br.HOTELBAO.dtos;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public class ResquestTokenDTO {
+public class RequestTokenDTO {
     @NotBlank(message = "Campo obrigatório")
     @Email(message = "Email inválido")
     private String email;
 
-    public ResquestTokenDTO() {
+    public RequestTokenDTO() {
     }
 
-    public ResquestTokenDTO(String email) {
+    public RequestTokenDTO(String email) {
         this.email = email;
     }
 
