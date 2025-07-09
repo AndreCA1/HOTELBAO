@@ -2,13 +2,13 @@ package ifmg.edu.br.HOTELBAO.dtos;
 
 import ifmg.edu.br.HOTELBAO.entities.Room;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.Objects;
 
-public class RoomDTO {
+public class RoomDTO extends RepresentationModel<RoomDTO> {
     @Schema(description = "Database generated ID Room")
     private long id;
 

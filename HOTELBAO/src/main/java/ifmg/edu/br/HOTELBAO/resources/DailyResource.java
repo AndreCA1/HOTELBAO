@@ -10,12 +10,16 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/daily")
@@ -38,6 +42,14 @@ public class DailyResource {
             })
     public ResponseEntity<Page<DailyDTO>> findAll(Pageable pageable) {
         Page<DailyDTO> entitys = dailyService.findAll(pageable);
+
+        entitys.forEach(dto -> {
+            dto.add(linkTo(methodOn(DailyResource.class).findById(dto.getId())).withSelfRel());
+        });
+
+        CollectionModel<DailyDTO> model = CollectionModel.of(entitys.getContent());
+        model.add(linkTo(methodOn(DailyResource.class).findAll(pageable)).withSelfRel());
+
         return ResponseEntity.ok(entitys);
     }
 
@@ -55,6 +67,12 @@ public class DailyResource {
             })
     public ResponseEntity<DailyDTO> findById(@PathVariable Long id) {
         DailyDTO entity = dailyService.findById(id);
+
+        entity.add(linkTo(methodOn(DailyResource.class).findById(id)).withSelfRel());
+        entity.add(linkTo(methodOn(DailyResource.class).findAll(Pageable.unpaged())).withRel("all-daily"));
+        entity.add(linkTo(methodOn(DailyResource.class).update(id, null)).withRel("update"));
+        entity.add(linkTo(methodOn(DailyResource.class).delete(id)).withRel("delete"));
+
         return ResponseEntity.ok(entity);
     }
 
@@ -72,6 +90,14 @@ public class DailyResource {
             })
     public ResponseEntity<Page<DailyDTO>> findByClientId(@PathVariable Long id, Pageable pageable) {
         Page<DailyDTO> entitys = dailyService.searchByClientId(id, pageable);
+
+        entitys.forEach(dto -> {
+            dto.add(linkTo(methodOn(DailyResource.class).findById(dto.getId())).withSelfRel());
+        });
+
+        CollectionModel<DailyDTO> model = CollectionModel.of(entitys.getContent());
+        model.add(linkTo(methodOn(DailyResource.class).findByClientId(id, pageable)).withSelfRel());
+
         return ResponseEntity.ok(entitys);
     }
 
@@ -89,6 +115,9 @@ public class DailyResource {
             })
     public ResponseEntity<DailyDTO> findMoreExpensiveByClientId(@PathVariable Long id) {
         DailyDTO entity = dailyService.searchMoreExpensiveByClientId(id);
+
+        entity.add(linkTo(methodOn(DailyResource.class).findById(entity.getId())).withSelfRel());
+
         return ResponseEntity.ok(entity);
     }
 
@@ -106,6 +135,9 @@ public class DailyResource {
             })
     public ResponseEntity<DailyDTO> findCheaperByClientId(@PathVariable Long id) {
         DailyDTO entity = dailyService.searchCheaperByClientId(id);
+
+        entity.add(linkTo(methodOn(DailyResource.class).findById(entity.getId())).withSelfRel());
+
         return ResponseEntity.ok(entity);
     }
 
@@ -122,6 +154,10 @@ public class DailyResource {
             })
     public ResponseEntity<DailyDTO> insert(@Valid @RequestBody DailyInsertDTO dto) {
         DailyDTO entity = dailyService.insert(dto);
+
+        entity.add(linkTo(methodOn(DailyResource.class).findById(entity.getId())).withSelfRel());
+        entity.add(linkTo(methodOn(DailyResource.class).update(entity.getId(), dto)).withRel("update"));
+        entity.add(linkTo(methodOn(DailyResource.class).delete(entity.getId())).withRel("delete"));
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -145,6 +181,10 @@ public class DailyResource {
             })
     public ResponseEntity<DailyDTO> update(@PathVariable Long id, @Valid @RequestBody DailyInsertDTO dto) {
         DailyDTO responseDTO = dailyService.update(id, dto);
+
+        responseDTO.add(linkTo(methodOn(DailyResource.class).findById(id)).withSelfRel());
+        responseDTO.add(linkTo(methodOn(DailyResource.class).delete(id)).withRel("delete"));
+
         return ResponseEntity.ok(responseDTO);
     }
 

@@ -23,8 +23,6 @@ public class AuthService {
     @Value("${email.password-recover.token.minutes}")
     private int tokenMinutes;
 
-    @Value("${email.password-recover.uri}")
-    private String uri;
 
     @Autowired
     private ClientRepository clientRepository;

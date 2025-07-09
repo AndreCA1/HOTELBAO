@@ -10,12 +10,16 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/client")
@@ -38,6 +42,14 @@ public class ClientResource {
             })
     public ResponseEntity<Page<ClientDTO>> findAll(Pageable pageable) {
         Page<ClientDTO> entitys = clientService.findAll(pageable);
+
+        entitys.forEach(dto -> {
+            dto.add(linkTo(methodOn(ClientResource.class).findById(dto.getId())).withSelfRel());
+        });
+
+        CollectionModel<ClientDTO> model = CollectionModel.of(entitys.getContent());
+        model.add(linkTo(methodOn(ClientResource.class).findAll(pageable)).withSelfRel());
+
         return ResponseEntity.ok(entitys);
     }
 
@@ -55,6 +67,12 @@ public class ClientResource {
             })
     public ResponseEntity<ClientDTO> findById(@PathVariable Long id) {
         ClientDTO entity = clientService.findById(id);
+
+        entity.add(linkTo(methodOn(ClientResource.class).findById(id)).withSelfRel());
+        entity.add(linkTo(methodOn(ClientResource.class).findAll(Pageable.unpaged())).withRel("all-clients"));
+        entity.add(linkTo(methodOn(ClientResource.class).update(id, entity)).withRel("update"));
+        entity.add(linkTo(methodOn(ClientResource.class).delete(id)).withRel("delete"));
+
         return ResponseEntity.ok(entity);
     }
 
@@ -72,6 +90,11 @@ public class ClientResource {
             })
     public ResponseEntity<ClientDTO> findByEmail(@PathVariable String email) {
         ClientDTO entity = clientService.findByEmail(email);
+
+        entity.add(linkTo(methodOn(ClientResource.class).findById(entity.getId())).withSelfRel());
+        entity.add(linkTo(methodOn(ClientResource.class).update(entity.getId(), entity)).withRel("update"));
+        entity.add(linkTo(methodOn(ClientResource.class).delete(entity.getId())).withRel("delete"));
+
         return ResponseEntity.ok(entity);
     }
 
@@ -89,16 +112,34 @@ public class ClientResource {
     public ResponseEntity<ClientDTO> insert(@Valid @RequestBody ClientInsertDTO dto) {
         ClientDTO entity = clientService.insert(dto);
 
+        entity.add(linkTo(methodOn(ClientResource.class).findById(entity.getId())).withSelfRel());
+        entity.add(linkTo(methodOn(ClientResource.class).update(entity.getId(), entity)).withRel("update"));
+        entity.add(linkTo(methodOn(ClientResource.class).delete(entity.getId())).withRel("delete"));
+
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(entity.getId()).toUri();
         return ResponseEntity.created(uri).body(entity);
     }
 
     @PostMapping("/signup")
+    @Operation(
+            description = "Customer self-registration",
+            summary = "Create a new client",
+            responses = {
+                    @ApiResponse(description = "created", responseCode = "201"),
+                    @ApiResponse(description = "Bad request", responseCode = "400"),
+                    @ApiResponse(description = "UnAuthorized", responseCode = "401"),
+                    @ApiResponse(description = "Forbidden", responseCode = "403")
+            })
     public ResponseEntity<ClientDTO> signup(@RequestBody @Valid ClientInsertDTO dto) {
-        ClientDTO newDto = clientService.signup(dto);
+        ClientDTO entity = clientService.signup(dto);
+
+        entity.add(linkTo(methodOn(ClientResource.class).findById(entity.getId())).withSelfRel());
+        entity.add(linkTo(methodOn(ClientResource.class).update(entity.getId(), entity)).withRel("update"));
+        entity.add(linkTo(methodOn(ClientResource.class).delete(entity.getId())).withRel("delete"));
+
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(newDto.getId()).toUri();
-        return ResponseEntity.created(uri).body(newDto);
+                .buildAndExpand(entity.getId()).toUri();
+        return ResponseEntity.created(uri).body(entity);
     }
 
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENT')")
@@ -116,6 +157,11 @@ public class ClientResource {
 
     public ResponseEntity<ClientDTO> update(@PathVariable Long id, @Valid @RequestBody ClientDTO dto) {
         dto = clientService.update(id, dto);
+
+        dto.add(linkTo(methodOn(ClientResource.class).findById(dto.getId())).withSelfRel());
+        dto.add(linkTo(methodOn(ClientResource.class).update(dto.getId(), dto)).withRel("update"));
+        dto.add(linkTo(methodOn(ClientResource.class).delete(dto.getId())).withRel("delete"));
+
         return ResponseEntity.ok(dto);
     }
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENT')")

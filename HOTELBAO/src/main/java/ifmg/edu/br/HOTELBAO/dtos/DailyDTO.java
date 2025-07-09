@@ -3,11 +3,12 @@ package ifmg.edu.br.HOTELBAO.dtos;
 import ifmg.edu.br.HOTELBAO.entities.Daily;
 import ifmg.edu.br.HOTELBAO.entities.Room;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.Date;
 import java.util.Objects;
 
-public class DailyDTO {
+public class DailyDTO extends RepresentationModel<DailyDTO> {
     @Schema(description = "Database generated ID Daily")
     private long id;
 

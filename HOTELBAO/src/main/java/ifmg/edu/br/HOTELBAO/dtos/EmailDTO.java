@@ -2,10 +2,11 @@ package ifmg.edu.br.HOTELBAO.dtos;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.Objects;
 
-public class EmailDTO {
+public class EmailDTO extends RepresentationModel<EmailDTO> {
     @NotBlank
     @Email
     private String to;

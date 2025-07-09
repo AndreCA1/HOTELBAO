@@ -1,17 +1,17 @@
 package ifmg.edu.br.HOTELBAO.dtos;
 
 import ifmg.edu.br.HOTELBAO.entities.Client;
-import ifmg.edu.br.HOTELBAO.entities.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class ClientDTO {
+public class ClientDTO extends RepresentationModel<ClientDTO> {
     @Schema(description = "Database generated ID Client")
     private long id;
 

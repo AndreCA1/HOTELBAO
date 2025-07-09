@@ -1,6 +1,5 @@
 package ifmg.edu.br.HOTELBAO.resources;
 
-import ifmg.edu.br.HOTELBAO.dtos.ClientDTO;
 import ifmg.edu.br.HOTELBAO.dtos.RoomDTO;
 import ifmg.edu.br.HOTELBAO.services.RoomService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,12 +9,16 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/room")
@@ -36,6 +39,14 @@ public class RoomResource {
             })
     public ResponseEntity<Page<RoomDTO>> findAll(Pageable pageable) {
         Page<RoomDTO> entitys = roomService.findAll(pageable);
+
+        entitys.forEach(dto -> {
+            dto.add(linkTo(methodOn(RoomResource.class).findById(dto.getId())).withSelfRel());
+        });
+
+        CollectionModel<RoomDTO> model = CollectionModel.of(entitys.getContent());
+        model.add(linkTo(methodOn(RoomResource.class).findAll(pageable)).withSelfRel());
+
         return ResponseEntity.ok(entitys);
     }
 
@@ -52,6 +63,12 @@ public class RoomResource {
             })
     public ResponseEntity<RoomDTO> findById(@PathVariable Long id) {
         RoomDTO entity = roomService.findById(id);
+
+        entity.add(linkTo(methodOn(RoomResource.class).findById(id)).withSelfRel());
+        entity.add(linkTo(methodOn(RoomResource.class).findAll(Pageable.unpaged())).withRel("all-rooms"));
+        entity.add(linkTo(methodOn(RoomResource.class).update(id, entity)).withRel("update"));
+        entity.add(linkTo(methodOn(RoomResource.class).delete(id)).withRel("delete"));
+
         return ResponseEntity.ok(entity);
     }
 
@@ -68,6 +85,10 @@ public class RoomResource {
             })
     public ResponseEntity<RoomDTO> insert(@Valid @RequestBody RoomDTO dto) {
         RoomDTO entity = roomService.insert(dto);
+
+        entity.add(linkTo(methodOn(RoomResource.class).findById(entity.getId())).withSelfRel());
+        entity.add(linkTo(methodOn(RoomResource.class).update(entity.getId(), entity)).withRel("update"));
+        entity.add(linkTo(methodOn(RoomResource.class).delete(entity.getId())).withRel("delete"));
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -91,6 +112,11 @@ public class RoomResource {
             })
     public ResponseEntity<RoomDTO> update(@PathVariable Long id, @Valid @RequestBody RoomDTO dto) {
         dto = roomService.update(id, dto);
+
+        dto.add(linkTo(methodOn(RoomResource.class).findById(dto.getId())).withSelfRel());
+        dto.add(linkTo(methodOn(RoomResource.class).update(dto.getId(), dto)).withRel("update"));
+        dto.add(linkTo(methodOn(RoomResource.class).delete(dto.getId())).withRel("delete"));
+
         return ResponseEntity.ok(dto);
     }
 
