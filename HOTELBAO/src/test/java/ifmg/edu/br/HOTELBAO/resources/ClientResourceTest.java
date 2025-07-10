@@ -126,7 +126,7 @@ public class ClientResourceTest {
 
     //Insert
     @Test
-    @WithMockUser(username = "client", roles = {})
+    @WithMockUser(username = "client", roles = {"ADMIN"})
     void insertShouldCreateANewUserIfDataIsValid() throws Exception {
         ClientInsertDTO client = Factory.createClientInsertDTO();
         String dtoJson = objectMapper.writeValueAsString(client);

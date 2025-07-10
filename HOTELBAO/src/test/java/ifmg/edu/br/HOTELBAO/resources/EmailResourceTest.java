@@ -27,7 +27,7 @@ public class EmailResourceTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @WithMockUser(username = "client", roles = {})
+    @WithMockUser(username = "client", roles = {"CLIENT"})
     void sendEmailShouldSendEmailIfEmailIsValid() throws Exception {
         EmailDTO email = Factory.createEmailDTO();
         String dtoJson = objectMapper.writeValueAsString(email);
@@ -41,7 +41,7 @@ public class EmailResourceTest {
     }
 
     @Test
-    @WithMockUser(username = "client", roles = {})
+    @WithMockUser(username = "client", roles = {"CLIENT"})
     void sendEmailShouldNotSendEmailIfEmailIsInvalid() throws Exception {
         EmailDTO email = Factory.createEmailDTO();
         email.setTo("aa");

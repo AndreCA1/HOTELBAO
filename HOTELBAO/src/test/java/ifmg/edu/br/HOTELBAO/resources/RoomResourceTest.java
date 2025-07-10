@@ -75,7 +75,7 @@ public class RoomResourceTest {
 
     //Insert
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void insertShouldCreateANewRoom() throws Exception {
         RoomDTO room = Factory.createRoomDTO();
         String dtoJson = objectMapper.writeValueAsString(room);
@@ -90,7 +90,7 @@ public class RoomResourceTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void insertShouldNotCreateANewRoomIfDataIsInvalid() throws Exception {
         RoomDTO room = Factory.createRoomDTO();
         room.setPrice(-1);
@@ -107,7 +107,7 @@ public class RoomResourceTest {
 
     //Update
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void updateShouldUpdateIfIdIsValid() throws Exception {
         RoomDTO room = Factory.createRoomDTO();
         String dtoJson = objectMapper.writeValueAsString(room);
@@ -122,7 +122,7 @@ public class RoomResourceTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void updateShouldNotUpdateIfDataIsInvalid() throws Exception {
         RoomDTO room = Factory.createRoomDTO();
         room.setPrice(0);
@@ -133,12 +133,12 @@ public class RoomResourceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
 
-        result.andExpect(status().isOk());
-        result.andExpect(jsonPath("$.fieldMessages.message").value("Preço deve ter valor positivo"));
+        result.andExpect(status().isUnprocessableEntity());
+        result.andExpect(jsonPath("$.fieldMessages[0].message").value("Preço deve ter valor positivo"));
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void updateShouldNotUpdateIfIdIsNotValid() throws Exception {
         RoomDTO room = Factory.createRoomDTO();
         String dtoJson = objectMapper.writeValueAsString(room);
@@ -154,7 +154,7 @@ public class RoomResourceTest {
 
     //Delete
     @Test
-    @WithMockUser(username = "client", roles = {})
+    @WithMockUser(username = "client", roles = {"ADMIN"})
     void deleteShouldDeleteAUserIfIdExists() throws Exception {
         ResultActions result = mockMvc.perform(delete("/room/{id}", existingId));
 
@@ -162,7 +162,7 @@ public class RoomResourceTest {
     }
 
     @Test
-    @WithMockUser(username = "client", roles = {})
+    @WithMockUser(username = "client", roles = {"ADMIN"})
     void deleteShouldNotDeleteAUserIfIdNotExists() throws Exception {
         ResultActions result = mockMvc.perform(delete("/room/{id}", nonExistingId));
 

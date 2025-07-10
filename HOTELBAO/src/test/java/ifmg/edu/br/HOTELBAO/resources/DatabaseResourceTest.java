@@ -24,7 +24,7 @@ public class DatabaseResourceTest {
 
     //Delete
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void deleteShouldDeleteDatabaseIfConfimationIsValid() throws Exception {
         ResultActions result = mockMvc.perform(get("/database/delete?confirmation={CONFIRMATION}", "CONFIRM_DELETE").accept(MediaType.APPLICATION_JSON));
 
@@ -33,7 +33,7 @@ public class DatabaseResourceTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void deleteShouldNotDeleteDatabaseIfConfimationIsInvalid() throws Exception {
         ResultActions result = mockMvc.perform(get("/database/delete?confirmation={CONFIRMATION}", "CONFIRM").accept(MediaType.APPLICATION_JSON));
 

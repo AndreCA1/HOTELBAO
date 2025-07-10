@@ -75,13 +75,13 @@ public class DailyResouceTest {
 
     //Get all
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void findAllShouldReturnAllDailies() throws Exception {
         ResultActions result = mockMvc.perform(get("/daily").accept(MediaType.APPLICATION_JSON));
 
         result.andExpect(status().isOk());
         //verifica se retorna exatamente os 7 do migration
-        result.andExpect(jsonPath("$.content.length()").value(8));
+        result.andExpect(jsonPath("$.content.length()").value(7));
         result.andExpect(jsonPath("$.content[0].clientId").value(1));
         result.andExpect(jsonPath("$.content[0].room.description").value("Quarto simples com cama de solteiro e ventilador."));
 
@@ -89,7 +89,7 @@ public class DailyResouceTest {
 
     //GetById
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void findByIdShouldReturnADailyIfIdExists() throws Exception {
         ResultActions result = mockMvc.perform(get("/daily/{id}", existingId).accept(MediaType.APPLICATION_JSON));
 
@@ -100,7 +100,7 @@ public class DailyResouceTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void findByIdShouldNotReturnADailyIfIdNotExists() throws Exception {
         ResultActions result = mockMvc.perform(get("/daily/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON));
 
@@ -110,7 +110,7 @@ public class DailyResouceTest {
 
     //Insert
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN", "CLIENT"})
     void insertShouldCreateANewDaily() throws Exception {
         DailyInsertDTO daily = Factory.createDailyInsertDTO(client.getId(), room.getId());
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
@@ -134,7 +134,7 @@ public class DailyResouceTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN", "CLIENT"})
     void insertShouldNotCreateANewDailyIfDataIsInvalid() throws Exception {
         DailyInsertDTO daily = Factory.createDailyInsertDTO(client.getId(), room.getId());
         daily.setClient(nonExistingId);
@@ -151,7 +151,7 @@ public class DailyResouceTest {
 
     //Update
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void updateShouldUpdateADaily() throws Exception {
         DailyInsertDTO daily = Factory.createDailyInsertDTO(client.getId(), room.getId());
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
@@ -175,7 +175,7 @@ public class DailyResouceTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void updateShouldNotUpdateADailyIfDataIsInvalid() throws Exception {
         DailyInsertDTO daily = Factory.createDailyInsertDTO(client.getId(), room.getId());
         daily.setClient(nonExistingId);
@@ -192,7 +192,7 @@ public class DailyResouceTest {
 
     //Delete
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void deleteShouldDeleteADailyIfIdIsValid() throws Exception {
         ResultActions result = mockMvc.perform(delete("/daily/{id}", existingId).accept(MediaType.APPLICATION_JSON));
 
@@ -200,7 +200,7 @@ public class DailyResouceTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {})
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void deleteShouldNotDeleteADailyIfIdIsInvalid() throws Exception {
         ResultActions result = mockMvc.perform(delete("/daily/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON));
 

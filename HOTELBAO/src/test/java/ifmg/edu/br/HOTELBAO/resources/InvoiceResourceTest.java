@@ -34,7 +34,7 @@ public class InvoiceResourceTest {
 
     //findClientById
     @Test
-    @WithMockUser(username = "client", roles = {})
+    @WithMockUser(username = "client", roles = {"ADMIN"})
     void invoiceShouldReturnAPdfWithValidReceipt() throws Exception {
         ResultActions result = mockMvc.perform(get("/invoice/client/{id}", existingId));
 
@@ -44,7 +44,7 @@ public class InvoiceResourceTest {
     }
 
     @Test
-    @WithMockUser(username = "client", roles = {})
+    @WithMockUser(username = "client", roles = {"ADMIN"})
     void updateShouldNotUpdateAUserIfDataIsInvalid() throws Exception {
         ResultActions result = mockMvc.perform(get("/invoice/client/{id}", nonExistingId));
 
