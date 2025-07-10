@@ -118,8 +118,12 @@ def _janela_insercao_alteracao(
             if not confirm:
                 return
 
-        acao(cliente["id"], dados, janela) if cliente else acao(dados, janela)
-        close_windows(janela_pai, janela)
+        if cliente:
+            if acao(cliente["id"], dados, janela):
+                close_windows(janela_pai, janela)
+        else:
+            if acao(dados, janela):
+                close_windows(janela_pai, janela)
 
     texto_botao = "✏️ Alterar" if cliente else "➕ Inserir"
     tk.Button(janela, text=texto_botao, command=ao_confirmar).pack(pady=10)
@@ -133,8 +137,9 @@ def inserir_cliente(dados, janela_pai):
         messagebox.showinfo(
             "Sucesso", "Cliente inserido com sucesso!", parent=janela_pai
         )
-    except requests.RequestException as e:
-        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
+        return True
+    except Exception as e:
+        messagebox.showerror(response.json()['fieldMessages'][0]['fieldName'], response.json()['fieldMessages'][0]['message'], parent=janela_pai)
 
 def signUp_client(dados, janela_pai):
     try:
@@ -215,6 +220,7 @@ def alterar_cliente(cliente_id, dados, janela_pai):
         messagebox.showinfo(
             "Sucesso", "Cliente alterado com sucesso!", parent=janela_pai
         )
+        return True
     except requests.RequestException as e:
         messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
 
@@ -364,7 +370,8 @@ def inserir_quarto(dados, janela_pai):
             "Sucesso", "Quarto inserido com sucesso!", parent=janela_pai
         )
     except requests.RequestException as e:
-        messagebox.showerror(response.json()['error'], response.json()['message'], parent=janela_pai)
+        messagebox.showerror(response.json()['fieldMessages'][0]['fieldName'],
+                             response.json()['fieldMessages'][0]['message'], parent=janela_pai)
 
 
 def cadastro_quarto(janela_pai):
